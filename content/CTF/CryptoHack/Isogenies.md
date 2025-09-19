@@ -512,8 +512,11 @@ $$
 be the $\displaystyle p^{r}$ - power frobenius map and its dual. 
 Then the following are equivalent:
 i/ $\displaystyle E\left[ p^{r}\right] =0$ for one(all) $\displaystyle r\geqslant 1$
+
 ii/ $\displaystyle \hat{\phi }_{r}$ is purely inseparable for one(all) $\displaystyle r\geqslant 1$
+
 iii/ The map $\displaystyle [ p] :E\rightarrow E$ is purely inseparable and $\displaystyle j( E) \in \mathbb{F}_{p^{2}}$.
+
 iv/ $\displaystyle End( E)$ is an order in a quaternion algebra
 
 

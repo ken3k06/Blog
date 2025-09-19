@@ -403,14 +403,15 @@ F.<i> = GF(p^2, modulus=[1,0,1])
 E = EllipticCurve(F, [1,0])
 P, Q = E.gens()
 ```
-Our base field is $\displaystyle \mathbb{F}_{p^{2}} \cong \mathbb{F}_{p}[ X] /\left( X^{2} +1\right)$and we choose $\displaystyle p\equiv 3\bmod 4$ so that the polynomial $\displaystyle X^{2} +1$ has no root and is irreducible. 
+Our base field is $\displaystyle \mathbb{F}_{p^{2}} \cong \mathbb{F}_{p}[ X] /\left( X^{2} +1\right)$ and we choose $\displaystyle p\equiv 3\bmod 4$ so that the polynomial $\displaystyle X^{2} +1$ has no root and is irreducible. 
 
 Moreover, there are relations between our given points: 
+$$
 \begin{gather*}
 R=aP+bQ\\
 S\ =cP+dQ
 \end{gather*}
-
+$$
 Our goal is to find $\displaystyle a,b,c,d$ and recover the secret key. 
 
 Because we are working on supersingular elliptic curves over $\displaystyle \mathbb{F}_{p^{2}}$, the abelian group of points on the curve is isomorphic to $\displaystyle \mathbb{Z} /( p+1) \times \mathbb{Z} /( p+1)$. Every point in $\displaystyle E(\mathbb{F}_{p^{2}})$ an be expressed as a combination of two independent generators, in our case, they are $\displaystyle P$ and $\displaystyle Q$. For the torsion subgroup $\displaystyle E[ n]$, if $\displaystyle \gcd( n,p) =1$ then $\displaystyle E[ n] \cong \mathbb{Z} /n\times \mathbb{Z} /n$.

@@ -422,7 +422,9 @@ To solve this challenge I will use the Weil's pairing. For more details, one sho
 
 The order of our curve is $(p+1)^2$ and this is also the order of $P,Q,R,S$. 
 We will have 
-$$\displaystyle e( aP+bQ,Q) =e( aP,Q) e( bQ,Q) =e( P,Q)^{a}$$
+$$
+\displaystyle e( aP+bQ,Q) =e( aP,Q) e( bQ,Q) =e( P,Q)^{a}
+$$
 
 Since the order is $2^{127}$, solving DLP should be easy. See also the MOV attack / Weil pairing explanation: https://risencrypto.github.io/WeilMOV/
 

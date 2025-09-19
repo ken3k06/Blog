@@ -199,7 +199,7 @@ Một version kết hợp với Diffie - Hellman như sau với nhóm $\mathbb{F
 - Output $K'$, trong đó $K'=\text{kdf}(h^a)=\text{kdf}((g^r)^a)=\text {kdf}(h_A^r) =K$
 
 Hàm phân phối khóa $\text{kdf}$ thông thường sẽ được mô hình hóa như một random oracle.
-### ElGamal in the random oracle model
+## ElGamal in the random oracle model
 Trường hợp đầu tiên: Ta có các thiết lập lí tưởng hóa như sau:
 - $H:\mathbb{G}^2 \rightarrow\mathcal{K}$ là một random oracle
 - $\mathbb{G}$ với giả định **CDH** là hard

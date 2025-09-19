@@ -152,11 +152,18 @@ Cơ chế đóng gói khóa KEM bao gồm các thuật toán sau:
     
 
 ![[Pasted image 20250919205654.png]]
+
+
 **Độ tin cậy**
+
 Tương tự như **PKE**, **KEM** cũng cần phải được đảm bảo tính hợp lệ, tức là mỗi ciphertext hợp lệ phải được giải mã đúng về khóa gốc mà nó đã đóng gói.
+
 Ta gọi một cặp pubkey/seckey $(\text{PK,SK}) \in [\text{KEM.KeyGen}(1^\lambda)]$ là không tốt nếu như có một cặp $(K,\psi) \in [\text{KEM.Encrypt}(1^\lambda,PK)]$, ta có $\text{KEM.Decrypt}(1^\lambda,\text{SK},\psi) \neq K$.
+
 Nếu ta gọi $\text{BadKeyPair}_\text{KEM}(\lambda)$ là xác suất để hàm sinh khóa sinh ra một cặp khóa không tốt, thì lúc này yêu cầu của ta là làm sao để giá trị trên tăng không đáng kể theo $\lambda$.
+
 **Security against Adaptive CCA**
+
 Ta định nghĩa một security game cho **KEM - CCA**. Tương tự với các security game khác ta cũng sẽ có $\mathcal{A}$ là một adversary với đầu vào là security parameter $\lambda$.
 - Stage 1: $\mathcal{A}$ truy vấn đến oracle sinh khóa. Key generation oracle sẽ tính $(\text{PK,SK}) \xleftarrow{R} \text{KEM.KeyGen}(1^\lambda)$ và trả về $\text{PK}$.
 - Stage 2: Adversary tiếp tục thực hiện chuỗi truy vấn tới decryption oracle.

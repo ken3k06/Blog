@@ -11,7 +11,9 @@ Let $E_1, E_2$ be the elliptic curves  over a finite field $\mathbb{F}_q$. Here 
 So now we want to consider a map between these two elliptic curves: 
 $$ 
 \phi : E_1 \rightarrow E_2
-$$What do we actually mean by this? To define such a map, we need to understand or provide an explicit formula describing the structure of these two curves.
+$$
+
+What do we actually mean by this? To define such a map, we need to understand or provide an explicit formula describing the structure of these two curves.
 We also wonder what properties should this map have for it to "behave well" in both the geometric and algebraic sense?
 - $\phi$ acts on points on the EC, which have an $x$ and a $y$ coordinate. So we can write $\phi = (\phi_1, \phi_2)$, which acts on a point $P = (x,y)$ on $E_1$ in the following way:
 $$
@@ -19,6 +21,7 @@ $$
 $$
 
 - We want this map to be rational. By this we mean that if $\phi = (\phi_1,\phi_2)$ then $\phi_1$ and $\phi_2$ are just algebraic fractions where the denominator and numerator are polynomials. For example 
+
 $$
 \frac{x^3+4x+1}{2x+5}
 $$

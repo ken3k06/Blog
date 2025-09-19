@@ -3,8 +3,11 @@ title: Ideal and Gröbner Basis
 ---
 # Sage
 [1]. [Ideals of commutative rings](https://doc.sagemath.org/html/en/reference/rings/sage/rings/ideal.html)
+
 [2]. [Ideals in multivariate polynomial rings](https://doc.sagemath.org/html/en/reference/polynomial_rings/sage/rings/polynomial/multi_polynomial_ideal.html)
+
 [3]. [Ideals in Univariate Polynomial Rings](https://doc.sagemath.org/html/en/reference/polynomial_rings/sage/rings/polynomial/ideal.html)
+
 # Introduction to Ideal
 
 

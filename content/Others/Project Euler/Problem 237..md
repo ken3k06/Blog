@@ -22,7 +22,8 @@ T( n-3)
 \end{pmatrix}
 $$
 
-$$\Longrightarrow \begin{pmatrix}
+$$
+\Longrightarrow \begin{pmatrix}
 T( n)\\
 T( n-1)\\
 T( n-2)\\
@@ -37,7 +38,8 @@ T( n-3)
 4\\
 1\\
 1
-\end{pmatrix}$$
+\end{pmatrix}
+$$
 
 
 

@@ -352,7 +352,7 @@ Hai hàm `rev_spicy` và `decrypt` thì có thể đảo ngược logic nhưng v
 
 Ta biết prefix của flag là `pwned{` nên tạo hệ các ràng buộc là oke
 
-```python=
+```python
 from z3 import *
 def spicy(text,offset,key):
     res = []

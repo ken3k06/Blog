@@ -1,5 +1,4 @@
 import { QuartzConfig } from "./quartz/cfg"
-import remarkBreaks from "remark-breaks"
 import * as Plugin from "./quartz/plugins"
 
 

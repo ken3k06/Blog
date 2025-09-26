@@ -57,6 +57,7 @@ Tham khảo:
 [1] https://docs.python.org/3/reference/datamodel.html
 [2] https://docs.python.org/3/library/stdtypes.html#
 [3] https://phamdinhkhanh.github.io/deepai-book/ch_appendix/appendix_OOP.html
+[4] https://docs.python.org/3.12/library/typing.html
 
 Tiếp theo mình sẽ nói qua về các built-in types trong Python. 
 

@@ -722,7 +722,8 @@ $$
 
 Vì ta có : với cặp $\displaystyle x_{i} =pq_{i} +r_{i} ,\ x_{j} =pq_{j} +r_{j}$ thì 
 
-$$\begin{gather*}
+$$
+\begin{gather*}
 q_{i} =( x_{i} -r_{i}) /p\\
 \Longrightarrow q_{i} x_{j} =( x_{i} -r_{i}) x_{j} /p\\
 q_{j} =( x_{j} -r_{j}) /p\\

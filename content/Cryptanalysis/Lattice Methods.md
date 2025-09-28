@@ -920,10 +920,13 @@ $$
 với $\displaystyle 1\leqslant i\leqslant d$ và $\displaystyle \alpha _{i} \neq 0(\bmod p) ,\rho _{i,j}$ và $\displaystyle \beta _{i}$ được biết giá trị. Hơn nữa các giá trị $\displaystyle k_{i,j}$ bị chặn bởi $\displaystyle 0\leqslant k_{i,j} < 2^{\mu _{i,j}}$ và ta không biết giá trị của các số này. Bài toán của ta sẽ là tìm cách khôi phục lại giá trị $\displaystyle x$ từ các phương trình trên. 
 Như vậy, một trường hợp cho bài EHNP sẽ là: 
 $$
+
 \begin{equation*}
 \left(\overline{x} ,p,\{\pi _{j} ,v_{j}\}_{j=1}^{m} ,\ \left\{\alpha _{i} ,\{\rho _{i,j} ,\mu _{i,j}\}_{j=1}^{l_{i}} ,\beta _{i}\right\}_{i=1}^{d}\right)
 \end{equation*}
-$$Mọi người để ý rằng ta chỉ biết khoảng chặn của các giá trị bị ẩn, nói đơn giản chính là độ lớn về bit của các số này. 
+
+$$
+Mọi người để ý rằng ta chỉ biết khoảng chặn của các giá trị bị ẩn, nói đơn giản chính là độ lớn về bit của các số này. 
 
 
 

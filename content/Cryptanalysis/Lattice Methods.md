@@ -904,6 +904,30 @@ def hnp(p, T, A, B, lattice_reduction=None, verbose=False):
     return None
 
 ```
+
+### Extended Hidden Number Problem - EHNP
+EHNP là một biến thể mở rộng của HNP. Cụ thể bài toán được phát biểu như sau:
+**Extended Hidden Number Problem**. Cho $p$ là một số nguyên tố và $x \in [1,p-1]$ là một số nguyên bí mật thỏa mãn:
+$$
+\displaystyle x=\overline{x} +\sum _{j=1}^{m} 2^{\pi _{j}} x_{j}
+$$
+trong đó ta biết giá trị của $\displaystyle \overline{x}$ và $\displaystyle \pi _{j}$, và các số nguyên $\displaystyle x_{j}$ thỏa mãn $\displaystyle 0\leqslant x_{j} < 2^{v_{j}}$ (ta không được biết $\displaystyle x_{j}$) với $\displaystyle v_{j}$ cho trước. Bây giờ giả sử ta có $\displaystyle d$ phương trình dưới dạng 
+$$
+\begin{equation*}
+\alpha _{i}\sum _{j=1}^{m} 2^{\pi _{j}} x_{j} +\sum _{j=1}^{l_{i}} \rho _{i,j} k_{i,j} =\beta _{i} -\alpha _{i}\overline{x} \ (\bmod p)
+\end{equation*}
+$$
+với $\displaystyle 1\leqslant i\leqslant d$ và $\displaystyle \alpha _{i} \neq 0(\bmod p) ,\rho _{i,j}$ và $\displaystyle \beta _{i}$ được biết giá trị. Hơn nữa các giá trị $\displaystyle k_{i,j}$ bị chặn bởi $\displaystyle 0\leqslant k_{i,j} < 2^{\mu _{i,j}}$ và ta không biết giá trị của các số này. Bài toán của ta sẽ là tìm cách khôi phục lại giá trị $\displaystyle x$ từ các phương trình trên. 
+Như vậy, một trường hợp cho bài EHNP sẽ là: 
+$$
+\begin{equation*}
+\left(\overline{x} ,p,\{\pi _{j} ,v_{j}\}_{j=1}^{m} ,\ \left\{\alpha _{i} ,\{\rho _{i,j} ,\mu _{i,j}\}_{j=1}^{l_{i}} ,\beta _{i}\right\}_{i=1}^{d}\right)
+\end{equation*}
+$$Mọi người để ý rằng ta chỉ biết khoảng chặn của các giá trị bị ẩn, nói đơn giản chính là độ lớn về bit của các số này. 
+
+
+
+
 ## CTF Challenges
 
 Một số bài CTF có ứng dụng Lattice trong lời giải.
@@ -920,3 +944,4 @@ Một số bài CTF có ứng dụng Lattice trong lời giải.
 **[8]** A Course in Computational Algebraic Number Theory, Henri Cohen, Springer
 **[9]** https://magicfrank00.github.io/writeups/posts/lll-to-solve-linear-equations/
 **[10]** https://ur4ndom.dev/static/files/latticetraining/practical_lattice_reductions.pdf
+**[11]** [Algorithms for the Approximate Common Divisor Problem](https://eprint.iacr.org/2016/215.pdf)

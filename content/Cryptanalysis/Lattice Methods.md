@@ -409,6 +409,15 @@ Thuật toán rút gọn lưới đầu tiên là LLL. Mục tiêu của thuật
 
 ![image](https://hackmd.io/_uploads/BJDypWuHle.png)
 
+Phân tích: Thuật toán bắt đầu bằng việc tìm một cơ sở trực giao từ một cơ sở cho trước. Trong quá trình trực giao hóa Gram-Schmidt, sẽ có một số hệ số Gram-Schmidt thỏa mãn:
+$$
+\displaystyle \mu _{i,j} =\frac{\mid \mathbf{v}_{i} \cdot \mathbf{v}_{j}^{*} \mid }{\| \mathbf{v}{_{j}^{*}}^{2} \| } >\frac{1}{2}
+$$
+Ta có thể giảm độ lớn của các hệ số này bằng cách lấy $\mathbf{b_i} - a\mathbf{b_j}$. Nếu có hai hàng không thỏa mãn điều kiện thứ hai thì ta sẽ swap 2 hàng này và lặp lại thuật toán. Bằng cách này ta sẽ làm giảm dần các hệ số $\mu_{i,j}$ và thu được một cơ sở rút gọn. 
+
+
+
+
 Mọi người có thể xem implement của key-moon tại đây https://github.com/key-moon/pylll/blob/main/pylll/lll.py
 
 **Cài đặt flatter** Tham khảo tại link sau https://github.com/keeganryan/flatter. 
@@ -931,10 +940,371 @@ Mọi người để ý rằng ta chỉ biết khoảng chặn của các giá t
 
 
 
+## Knapsack Problem
+
+
+## Giải các phương trình tuyến tính
+
+Tiếp theo ta sẽ tìm hiểu xem thuật toán LLL có ứng dụng gì trong việc giải các phương trình tuyến tính.
+**Ví dụ 1.** Xét phương trình 
+$$
+3x+5y=2
+$$
+Ta muốn tìm một cặp nghiệm nhỏ $(x,y)$. Một ý tưởng đơn giản là tìm cách xây dựng một lattice sao cho $(x,y)$ cũng là một vector được sinh bởi lattice này. 
+Ta viết lại phương trình như sau:
+$$
+3x+5y-2k=0
+$$
+Và dựng một ma trận có dạng :
+$$
+\begin{equation*}
+( x,y,-k)\begin{pmatrix}
+1 &  & 3\\
+ & 1 & 5\\
+ &  & -2
+\end{pmatrix} =( x,y,0)
+\end{equation*}
+$$
+Ta kì vọng $(x,y,0)$ sẽ là vector ngắn của lattice này. 
+Sau khi rút gọn ta được:
+```python
+sage: M = Matrix([[1,0,3],[0,1,5],[0,0,-2]])
+sage: M.LLL()
+[-1  1  0]
+[ 0 -1 -1]
+[-1  0  1]
+sage:
+```
+Ta chú ý tới các vector nào có phần tử cuối cùng là 0 thì đây chính là vector mà ta cần tìm. Như vậy ta có được một nghiệm là $(-1,1)$. Thử lại: 
+$$
+-3 + 5 = 2
+$$
+Nhưng cách build này có một vấn đề đó là ta không kiểm soát được giá trị của $k$. Như vậy sẽ có khả năng trong một số trường hợp ta tìm ra một vector đúng định dạng mà ta mong muốn nhưng giá trị $k$ lại không thỏa mãn bằng $1$ khiến cho phương trình vô nghiệm. 
+Một cách xử lí khác đó là dựng ma trận 
+$$
+\begin{equation*} ( a,b,c)\begin{pmatrix} 1 & & & 3\\ & 1 & & 5\\ & & 1 & -2 \end{pmatrix} =( a,b,c,3a+5b-2c) \end{equation*}
+$$
+
+Bây giờ mình thử xài LLL cho ma trận này xem sao và cố tìm một vector ngắn trong cơ sở rút gọn có dạng $\displaystyle ( ...,...,1,0)$. Đối với trường hợp này mình có được ngay:
+```python
+sage: M = identity_matrix(3).augment(vector([3,5,2]))
+sage: M
+[1 0 0 3]
+[0 1 0 5]
+[0 0 1 2]
+sage: M.LLL()
+[ 1 -1  1  0]
+[-1  0  1 -1]
+[ 0  0  1  2]
+```
+Như vậy trong trường hợp này thì ta có một nghiệm $(a,b,c) = (1,-1,1)$.
+Nhưng không phải trong trường hợp nào thì thuật toán LLL cũng hoạt động tốt.
+Chẳng hạn ta có một phản ví dụ sau đây: 
+Xét phương trình
+$$
+33x+7y =11
+$$
+
+Mình thử với ma trận:
+$$
+\begin{equation*} ( x,y,k)\begin{pmatrix} 1 & & 33\\ & 1 & 7\\ & & -11 \end{pmatrix} =( x,y,0) \end{equation*}
+$$
+
+```python
+sage: M = Matrix([[1,0,33],[0,1,7],[0,0,-11]])
+sage: M.LLL()
+[-1  0  0]
+[ 0 -3  1]
+[ 0 -2 -3]
+sage:
+```
+Thì không thu được hàng nào cho kết quả như mong muốn. Mình thử luôn với cách xây dựng ma trận kia xem sao:
+$$
+\displaystyle ( x,y,k)\begin{pmatrix} 1 & & & 33\\ & 1 & & 7\\ & & 1 & -11 \end{pmatrix} =( x,y,k,0)
+$$
+
+```python
+sage: M = identity_matrix(3).augment(vector([33,7,-11]))
+sage: M.LLL()
+[-1  0 -3  0]
+[ 1 -3  1  1]
+[ 0 -2 -1 -3]
+sage: M
+[  1   0   0  33]
+[  0   1   0   7]
+[  0   0   1 -11]
+sage:
+```
+Có 1 hàng có dạng $(-1,0,-3,0)$. Mình thay lại thì được: $-1 \times 33+0\times 7 =-3 \times 11$. Mặc dù phương trình thỏa mãn VT = VP nhưng đây không phải là nghiệm ta mong muốn vì ta cần $k=1$.
+
+
 ## CTF Challenges
 
 Một số bài CTF có ứng dụng Lattice trong lời giải.
 
+### IdekCTF 2025 - Diamond Ticket
+Source code của bài:
+```python
+from Crypto.Util.number import *
+
+#Some magic from Willy Wonka
+p = 170829625398370252501980763763988409583
+a = 164164878498114882034745803752027154293
+b = 125172356708896457197207880391835698381
+
+def chocolate_generator(m:int) -> int:
+    return (pow(a, m, p) + pow(b, m, p)) % p
+
+#The diamond ticket is hiding inside chocolate
+diamond_ticket = open("flag.txt", "rb").read()
+assert len(diamond_ticket) == 26
+assert diamond_ticket[:5] == b"idek{"
+assert diamond_ticket[-1:] == b"}"
+diamond_ticket = bytes_to_long(diamond_ticket[5:-1])
+flag_chocolate = chocolate_generator(diamond_ticket)
+chocolate_bag = []
+
+#Willy Wonka are making chocolates
+for i in range(1337):
+    chocolate_bag.append(getRandomRange(1, p))
+
+#And he put the golden ticket at the end
+chocolate_bag.append(flag_chocolate)
+
+#Augustus ate lots of chocolates, but he can't eat all cuz he is full now :D
+remain = chocolate_bag[-5:]
+
+#Compress all remain chocolates into one
+remain_bytes = b"".join([c.to_bytes(p.bit_length()//8, "big") for c in remain])
+
+#The last chocolate is too important, so Willy Wonka did magic again
+P = getPrime(512)
+Q = getPrime(512)
+N = P * Q
+e = bytes_to_long(b"idek{this_is_a_fake_flag_lolol}")
+d = pow(e, -1, (P - 1) * (Q - 1))
+c1 = pow(bytes_to_long(remain_bytes), e, N)
+c2 = pow(bytes_to_long(remain_bytes), 2, N) # A small gift
+
+#How can you get it ?
+print(f"{N = }")
+print(f"{c1 = }")
+print(f"{c2 = }") 
+
+# N = 85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867
+# c1 = 27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301
+# c2 = 30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649
+```
+
+Phân tích: Đầu tiên ta có 3 tham số $p,a,b$ và hàm `chocolate_generator(m)`. Nó sẽ nhận vào số mũ $m$ và trả về $a^{m}+b^{m} \bmod p$. 
+
+Tiếp theo cách flag được mã hóa trong bài này như sau:
+
+```python
+diamond_ticket = open("flag.txt", "rb").read()
+assert len(diamond_ticket) == 26
+assert diamond_ticket[:5] == b"idek{"
+assert diamond_ticket[-1:] == b"}"
+diamond_ticket = bytes_to_long(diamond_ticket[5:-1])
+flag_chocolate = chocolate_generator(diamond_ticket)
+```
+
+`flag_chocolate` chính là $a^{flag}+b^{flag} \bmod p$. Và ta phải giải để tìm lại `flag` từ thông tin này. 
+
+```python
+for i in range(1337):
+    chocolate_bag.append(getRandomRange(1, p))
+```
+Hàm này tạo một danh sách `chocolate_bag` gồm các số ngẫu nhiên trong khoảng $[1,p]$ nhưng sau đó chỉ lấy 5 số cuối trong đó bao gồm flag của ta. 
+
+```python
+chocolate_bag.append(flag_chocolate)
+#Augustus ate lots of chocolates, but he can't eat all cuz he is full now :D
+remain = chocolate_bag[-5:]
+```
+
+Sau đó nó sẽ nối các phần tử trong `remain` lại và mã hóa bằng RSA
+
+```python
+remain_bytes = b"".join([c.to_bytes(p.bit_length()//8, "big") for c in remain])
+
+#The last chocolate is too important, so Willy Wonka did magic again
+P = getPrime(512)
+Q = getPrime(512)
+N = P * Q
+e = bytes_to_long(b"idek{this_is_a_fake_flag_lolol}")
+d = pow(e, -1, (P - 1) * (Q - 1))
+c1 = pow(bytes_to_long(remain_bytes), e, N)
+c2 = pow(bytes_to_long(remain_bytes), 2, N) # A small gift
+```
+
+Trước tiên mình cần tìm lại `remain_bytes` từ hai giá trị $c1$ và $c2$. 
+
+
+$$
+\begin{array}{l}
+c_{1} =m^{e}\bmod N\\
+c_{2} =m^{2}\bmod N
+\end{array}
+$$
+
+Với $e$ được tạo bởi `e = bytes_to_long(b"idek{this_is_a_fake_flag_lolol}")` là một số lẻ. 
+Bây giờ giả sử ta có $\displaystyle c_{1} =m^{a}$ và $\displaystyle c_{2} =m^{b}$. Muốn tính lại $\displaystyle m$ ta sẽ làm như sau: Ta gọi $\displaystyle g=\gcd( a,b)$. Đối với bài này thì $\displaystyle g=1$. Như vậy theo định lí Bezout tồn tại $\displaystyle u,v$ để $\displaystyle au+bv=1$. 
+
+Sau đó ta sẽ tính $\displaystyle c_{1}^{u} =m^{au}$ và $\displaystyle c_{2}^{v} =m^{vb}$ và tính $\displaystyle c_{1}^{u} \times c_{2}^{v} =m^{au+vb} =m$ và khôi phục lại được giá trị của $\displaystyle m$ ban đầu. Nếu như $\displaystyle g >1$ thì ta có thể lấy `nth_root(g)` của nó .
+
+Script cho bước này:
+
+
+```python
+from Crypto.Util.number import *
+from sage.all import *
+
+
+N = 85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867
+c1 = 27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301
+c2 = 30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649
+e = bytes_to_long(b"idek{this_is_a_fake_flag_lolol}")
+def attack(n, e1, c1, e2, c2):
+    g, u, v = xgcd(e1, e2)
+    p1 = pow(c1, u, n) if u > 0 else pow(pow(c1, -1, n), -u, n)
+    p2 = pow(c2, v, n) if v > 0 else pow(pow(c2, -1, n), -v, n)
+    return int(ZZ(int(p1 * p2) % n).nth_root(g))
+remain_bytes = attack(N,e,c1,2,c2)
+print(remain_bytes)
+```
+`remain_bytes` có `len == 80 bytes` được tạo thành từ 5 phần, mỗi phần `16 bytes` chính là `len` của số nguyên tố `p`. Vậy ta tách nó thành 5 phần bằng nhau và lấy phần cuối chính là `flag_chocolate` của ta. 
+
+```python
+print(remain_bytes)
+remain_bytes = long_to_bytes(remain_bytes)
+print(len(remain_bytes))
+remain = [
+    int.from_bytes(remain_bytes[i:i + 16], "big")
+    for i in range(0, 80, 16)
+]
+flag_chocolate = remain[-1]
+print(flag_chocolate)
+# 99584795316725433978492646071734128819
+```
+
+Tiếp theo ta sẽ giải DLP. 
+Bây giờ ta có $p,a,b$ và $a^m + b^m \bmod p$. 
+Kiểm tra order: 
+```python
+sage: p = 170829625398370252501980763763988409583
+sage: factor(p-1)
+2 * 40841 * 50119 * 51193 * 55823 * 57809 * 61991 * 63097 * 64577
+sage:
+```
+Order của nhóm khá smooth. 
+
+Nhưng ta cần tìm order của hai số $a$ và $b$. 
+
+```python
+sage: p = 170829625398370252501980763763988409583
+....: a = 164164878498114882034745803752027154293
+....: b = 125172356708896457197207880391835698381
+sage: K = Zmod(p)
+sage: a = K(a)
+sage: b = K(b)
+sage: print(a.multiplicative_order())
+85414812699185126250990381881994204791
+sage: print(b.multiplicative_order())
+85414812699185126250990381881994204791
+sage: order1 = a.multiplicative_order()
+sage: order2 = a.multiplicative_order()
+sage: assert order1 == order2
+sage: order = p-1
+sage: print(order/order1)
+2
+sage:
+```
+Vậy cấp của $a$ và $b$ là $(p-1)/2$. 
+Về cơ bản thì không thể giải được bài toán nếu như giữ nguyên cả hai số $a$ và $b$ được. Nên mình đã thử tìm một số $k$ sao cho $b=a^k \bmod p$ coi sao. 
+
+```python
+sage: k  = discrete_log(b,a,order1)
+sage: print(k)
+73331
+sage:
+```
+Đưa về bài toán $a^m+  a^{km} \bmod p$.
+
+Bây giờ mình muốn tìm lại $a^m$ nên đã thử dựng đa thức $f = x + x^k -c$.
+
+Vấn đề là số mũ $k$ khá lớn nên để tìm lại nghiệm khá tốn thời gian nên mình xài một `trick lỏ` học được sau giải `MaltaCTF` vừa rồi. https://github.com/ctf-mt/maltactf-2025-quals/blob/master/crypto/grammar-nazi/solution/solve.sage
+
+Ta đã biết với  $\displaystyle K$ là một trường hữu hạn có đặc số nguyên tố $\displaystyle p$ thì $\displaystyle x^{p^{n}} -x=x\prod _{u_{i} \in K^{*}}( x-u_{i})$ với $\displaystyle K^{*} =K\backslash \{0\}$. 
+
+Ở đây ta đang làm việc với $K=GF(p)$ và một nhóm con của nó là nhóm các thặng dư bậc hai vì bậc của $a$ là $(p-1)/2$. Nhóm con của một nhóm cyclic cũng là một nhóm cyclic cho nên mình sẽ dựng một đa thức khác là $g = x^r - x$ trong đó $r = (p-1)/2 + 1$. 
+
+Vấn đề là trong sage khi gọi $g$ như vậy thì gặp lỗi 
+
+```
+OverflowError: cannot fit 'int' into an index-sized integer
+```
+Do số mũ quá lớn nên sage không xử lí được. Để khắc phục thì mình lấy `f.gcd(pow(x,r,f)-x).roots(multiplicities=False)` là được.
+
+
+```python
+K = Zmod(p)
+a = K(a)
+b = K(b)
+order1 = a.multiplicative_order()
+order2 = b.multiplicative_order()
+r = (p-1)//2 + 1
+print(order1 ,'\n')
+print(order2)
+# a^m + b^m = c mod p 
+k = discrete_log(b,a)
+# k = 73331
+c = K(flag_chocolate)
+P = PolynomialRing(K, 'a')
+x = P.gen()
+f = x  + x**k - c 
+res = f.gcd(pow(x,r,f)-x).roots(multiplicities=False)
+print(res)
+# 126961729658296101306560858021273501485
+```
+```python
+a_m = K(126961729658296101306560858021273501485)
+m0 = discrete_log(a_m,a,order1)
+# m0 = 4807895356063327854843653048517090061
+```
+Bước tiếp theo là tìm lại $m$ ban đầu. Ta biết $a^m = a^{m_0} \bmod p$ thì $m\equiv m_0 \bmod order$. Vấn đề là $m0$ chỉ có 122 bits trong khi $m$ gốc ban đầu có gồm 20 bytes tức là 160 bits ??
+
+Ở bước này thì mình tham khảo Writeup của một bài trong giải [SEETF 2023](https://adib.au/2023/onelinecrypto/)
+
+Ứng dụng vào bài: Từ đề bài ta biết được flag có độ dài 26 bytes nhưng bằng việc bỏ đi 6 kí tự thì nó chỉ còn 20 bytes. Giả sử ban đầu flag của ta là $\displaystyle a=a_{19} a_{18} ....a_{0}$ thì sau khi chuyển từ bytes thành long (mặc định hàm `bytes_to_long` của pycryptodome lấy theo big endian ) nó sẽ có giá trị là:
+$$
+\begin{equation*}
+m=\sum _{i=0}^{19} a[ 0] \times 256^{20-i-1}
+\end{equation*}
+$$
+Bây giờ ta có $\displaystyle r\equiv m\bmod\left(\frac{p-1}{2}\right)$ vừa tìm được chính là tổng trên nhưng được lấy theo modulo $\displaystyle \frac{p-1}{2}$. Như vậy 
+$$
+\begin{gather*}
+\sum _{i=0}^{19} a[ 0] \times 256^{20-i-1} \equiv r\left(\bmod\frac{p-1}{2}\right)\\
+\Longrightarrow \sum _{i=0}^{19} a[ 0] \times 256^{20-i-1} -r+k\frac{p-1}{2} =0
+\end{gather*}
+$$
+Như vậy ta có thể build một lattice có dạng như sau
+$$
+\begin{equation*}
+( a_{19} ,a_{18} ,...,a_{0} ,1,k)\begin{pmatrix}
+1 &  &  &  &  & 0 & 256^{19}\\
+ & 1 &  &  &  & 0 & 256^{18}\\
+ &  & 1 &  &  & 0 & 256^{17}\\
+ &  &  & \ddots  &  & \vdots  & \vdots \\
+ &  &  &  & 1 & 0 & 256^{0}\\
+ &  &  &  &  & -1 & -r\\
+ &  &  &  &  & 0 & ( p-1) //2
+\end{pmatrix} =( a_{19} ,a_{18} ,...,a_{0} ,-1,0)
+\end{equation*}
+$$
+
+Và kì vọng vector $\displaystyle ( a_{19} ,a_{19} ,...,a_{0} ,-1,0)$ là vector ngắn nhất sinh ra bởi lưới. 
 
 ## Tài liệu tham khảo
 **[1]** Abstract Algebra: Theory and Applications ,Thomas W. Judson, Stephen F. Austin, State University, August 11, 2012 

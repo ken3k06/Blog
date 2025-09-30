@@ -1307,6 +1307,90 @@ $$
 $$
 
 Và kì vọng vector $\displaystyle ( a_{19} ,a_{19} ,...,a_{0} ,-1,0)$ là vector ngắn nhất sinh ra bởi lưới. 
+Nếu để nguyên ma trận như vậy rồi rút gọn LLL thì sẽ không ra được kết quả như mong muốn. Do vậy ta cần chỉnh lại các hệ số trong ma trận một chút. 
+
+Full solve:
+```python
+from sage.all import *
+from Crypto.Util.number import *
+
+
+# step 1
+N = 85494791395295332945307239533692379607357839212287019473638934253301452108522067416218735796494842928689545564411909493378925446256067741352255455231566967041733698260315140928382934156213563527493360928094724419798812564716724034316384416100417243844799045176599197680353109658153148874265234750977838548867
+c1 = 27062074196834458670191422120857456217979308440332928563784961101978948466368298802765973020349433121726736536899260504828388992133435359919764627760887966221328744451867771955587357887373143789000307996739905387064272569624412963289163997701702446706106089751532607059085577031825157942847678226256408018301
+c2 = 30493926769307279620402715377825804330944677680927170388776891152831425786788516825687413453427866619728035923364764078434617853754697076732657422609080720944160407383110441379382589644898380399280520469116924641442283645426172683945640914810778133226061767682464112690072473051344933447823488551784450844649
+
+e = bytes_to_long(b"idek{this_is_a_fake_flag_lolol}")
+g, u, v = xgcd(e,2) # return eu + 2v = 1
+# c1 = m^e mod N
+# c2 = m^2 mod N
+p1 = pow(c1, u, N) if u > 0 else pow(pow(c1,-1,N), -u, N)
+p2 = pow(c2, v, N) if v > 0 else pow(pow(c2,-1,N), -v, N)
+c = (p1*p2) % N
+remain_bytes = int((ZZ(c)).nth_root(g))
+# print(remain_bytes)
+remain = long_to_bytes(remain_bytes)
+# print(len(remain))
+chunk = [remain[i*16:(i+1)*16] for i in range(5)]
+flag_chocolate = int(bytes_to_long(chunk[-1]))
+# print(flag_chocolate)
+
+# step 2
+p = 170829625398370252501980763763988409583
+a = 164164878498114882034745803752027154293
+b = 125172356708896457197207880391835698381
+K = GF(p)
+# flag_chocolate = a^m + b^m mod p 
+a = K(a)
+b = K(b)
+choco = K(99584795316725433978492646071734128819)
+# print(a.multiplicative_order())
+# print((p-1)//2)
+k = b.log(a)
+# print(k)
+# a^m + (a^m)^k = choco
+R = PolynomialRing(K, 'x')
+x = R.gen()
+f = x + x**k - choco
+r = (p-1)//2 + 1 
+# root = f.gcd(pow(x,r,f)-x).roots(multiplicities = False)
+# print(len(root))
+# for r in root:
+#     print(r)
+
+a_pow_m = K(126961729658296101306560858021273501485)
+# m = discrete_log(a_pow_m,a, operation='*', ord = (p-1)//2)
+# print(m)
+m = 4807895356063327854843653048517090061
+
+# step 3
+# m = bytes_to_long(flag[5:-1]) % (p-1)//2 
+aa = 95
+modulus = GF(p)(a).multiplicative_order()
+M = (identity_matrix(20).augment(vector([0]*20)).augment(vector([256**i for i in range(19,-1,-1)]))
+     .stack(vector([-aa]*20+[-1,-m])).stack(vector([0]*20+[0,-modulus]))
+)
+print(M)
+M[:,-1] *= 2**16
+M[:,-2] *= 2**8
+for row in M.LLL():
+    if row[-1] != 0:
+        continue
+    if row[-2] == 256:
+        row *= -1
+    if row[-2] == -256:
+        try: 
+            flag = b"idek{" +bytes([i+ aa for i in row[:-2]]) + b"}"
+            print(flag)
+            break
+        except:
+            continue
+
+```
+
+
+
+
 
 ## Tài liệu tham khảo
 **[1]** Abstract Algebra: Theory and Applications ,Thomas W. Judson, Stephen F. Austin, State University, August 11, 2012 

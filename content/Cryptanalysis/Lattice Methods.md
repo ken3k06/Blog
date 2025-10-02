@@ -417,6 +417,7 @@ $$
 $$
 Ta có thể giảm độ lớn của các hệ số này bằng cách lấy $\mathbf{b_i} - a\mathbf{b_j}$. Nếu có hai hàng không thỏa mãn điều kiện thứ hai thì ta sẽ swap 2 hàng này và lặp lại thuật toán. Bằng cách này ta sẽ làm giảm dần các hệ số $\mu_{i,j}$ và thu được một cơ sở rút gọn. 
 
+![[Pasted image 20251001224412.png]]
 
 
 
@@ -1039,6 +1040,43 @@ sage:
 ```
 Có 1 hàng có dạng $(-1,0,-3,0)$. Mình thay lại thì được: $-1 \times 33+0\times 7 =-3 \times 11$. Mặc dù phương trình thỏa mãn VT = VP nhưng đây không phải là nghiệm ta mong muốn vì ta cần $k=1$.
 
+Để giải quyết việc này thì mình sẽ đánh "trọng số" vào hàng chứa hệ số của $k$, tức là hàng thứ 3. 
+Sau khi chạy thì mọi người thấy ở hàng thứ 3 số $1000$ vẫn giữ nguyên, điều này chứng tỏ $k=1$. 
+```python
+sage: M = identity_matrix(3).augment(vector([33,7,-11]))
+sage: M[2,2] = 1000
+sage: M.LLL()
+[   1   -5    0   -2]
+[   1   -4    0    5]
+[   1   -3 1000    1]
+sage:
+```
+
+Theo cách mình hiểu cho việc đặt hệ số như trên đó là nằm ở cách LLL hoạt động. Ở mỗi bước nó sẽ kiểm tra điều kiện dưới đây: 
+
+![[Pasted image 20251001224814.png]]
+Tức là nếu như có một hàng $\Vert \mathbf{b}^{*}_{i+1}\Vert$ có chuẩn (norm) đủ lớn thì nó sẽ bỏ qua và chỉ tính toán đúng 1 lần. 
+Nhưng rất tiết là, với cách làm trên ta không thu lại được nghiệm cho phương trình ban đầu vì phần tử cuối của vector trên lại khác 0, trong khi ta lại mong muốn nó phải bằng 0.
+
+Để làm được điều này thì ta sẽ nhân cột cuối cùng của ma trận với một số rất lớn khác. Như vậy, khi LLL chạy , nó sẽ cố gắng tìm một vector ngắn theo chuẩn Euclid và vì các vector của ta trong cơ sở ban đầu đều khá lớn cho nên nó sẽ bỏ qua các vector mà có phần tử cuối cùng khác 0 và cố gắng tìm một vector có phần tử cuối cùng bằng 0 (lưu ý rằng ta chỉ đang kì vọng rằng sẽ có một vector như vậy). 
+```python
+sage: M = identity_matrix(3).augment(vector([33,7,-11]))
+sage: M[2,2] = 1000
+sage: M[:,-1] *= 1000
+sage: M
+[     1      0      0  33000]
+[     0      1      0   7000]
+[     0      0   1000 -11000]
+sage: M.LLL()
+[   7  -33    0    0]
+[   3  -14    0 1000]
+[  -2   11 1000    0]
+sage:
+```
+Như vậy ta đã tìm được một nghiệm cho phương trình đó là $(x,y,k)=(-2,11,1)$.
+Tiếp tục ta sẽ tìm hiểu một số phiên bản khác của bài toán giải phương trình/hệ phương trình tuyến tính
+
+### Phương trình đồng dư tuyến tính
 
 ## CTF Challenges
 
@@ -1141,7 +1179,6 @@ c2 = pow(bytes_to_long(remain_bytes), 2, N) # A small gift
 ```
 
 Trước tiên mình cần tìm lại `remain_bytes` từ hai giá trị $c1$ và $c2$. 
-
 
 $$
 \begin{array}{l}
@@ -1306,10 +1343,20 @@ $$
 \end{equation*}
 $$
 
-Và kì vọng vector $\displaystyle ( a_{19} ,a_{19} ,...,a_{0} ,-1,0)$ là vector ngắn nhất sinh ra bởi lưới. 
+Và kì vọng vector $\displaystyle ( a_{19} ,a_{18} ,...,a_{0} ,-1,0)$ là vector ngắn nhất sinh ra bởi lưới. 
 Nếu để nguyên ma trận như vậy rồi rút gọn LLL thì sẽ không ra được kết quả như mong muốn. Do vậy ta cần chỉnh lại các hệ số trong ma trận một chút. 
+Như đã làm ở trên trong phần ứng dụng giải hệ phương trình tuyến tính, thì bây giờ ta muốn tạo một cơ sở cho lattice mà sau khi rút gọn LLL sẽ sinh ra một vector có dạng $(a_{19},a_{18},...,-1,0)$. Thì đầu tiên để cho phần tử cuối cùng của Vector này bằng 0 thì ta cần scale cột cuối cùng của ma trận bằng một số lớn. Ở đây mình chọn scale hệ số là $10^6$. 
 
-Full solve:
+Tiếp theo mình sẽ ép các entries trong các vector của cơ sở về một biên cụ thể, ở đây vì $a_i$ đều là các kí tự ASCII nên mình sẽ lấy hàng gần cuối có dạng $(-a,-a,...,-a,-1,-m)$. Giá trị $a$ này mình sẽ brute force để tìm ra sau =)) đại loại thì nó sẽ từ $[80,126]$. 
+
+Tiếp theo là làm sao để phần tử kế cuối bằng $-1$. Thì mục tiêu của ta là scale cột thứ 2, nhưng vấn đề là scale như thế nào? Thì lúc này ta vẫn sẽ scale cột gần cuối bởi một số lớn bất kì nào đó. Nếu như sau khi LLL, giá trị tuyệt đối của cột đó vẫn giữ nguyên thì coi như ta thành công. Chẳng hạn ta đánh trọng số vào cột gần cuối là $W$ thì ta sẽ kì vọng thu được một vector có dạng:
+$$
+(a_{19},a_{18},...,a_{0},-W,0)
+$$
+Còn về việc chọn trong số bao nhiêu cho hợp lí thì mình bruteforce thôi. Trước tiên thì mình chạy thử $W \in [100,1000]$ coi sao. 
+Một số lưu ý khác trong việc chọn weight và các kĩ thuật giải quyết tương tự mình sẽ note vào trong các ví dụ khác. Còn đối với bài này thì cách bruteforce như trên vẫn đủ để giải quyết. 
+
+Final solve script:
 ```python
 from sage.all import *
 from Crypto.Util.number import *
@@ -1365,29 +1412,47 @@ m = 4807895356063327854843653048517090061
 
 # step 3
 # m = bytes_to_long(flag[5:-1]) % (p-1)//2 
-aa = 95
+
+
+
 modulus = GF(p)(a).multiplicative_order()
-M = (identity_matrix(20).augment(vector([0]*20)).augment(vector([256**i for i in range(19,-1,-1)]))
+for aa in range(80,126):
+    M = (identity_matrix(20).augment(vector([0]*20)).augment(vector([256**i for i in range(19,-1,-1)]))
      .stack(vector([-aa]*20+[-1,-m])).stack(vector([0]*20+[0,-modulus]))
 )
-print(M)
-M[:,-1] *= 2**16
-M[:,-2] *= 2**8
-for row in M.LLL():
-    if row[-1] != 0:
-        continue
-    if row[-2] == 256:
-        row *= -1
-    if row[-2] == -256:
-        try: 
-            flag = b"idek{" +bytes([i+ aa for i in row[:-2]]) + b"}"
-            print(flag)
-            break
-        except:
-            continue
-
+    M[:,-1] *= 10**6
+    cand = []
+    for i in range(100,1000): # precomputed
+        M_ = copy(M)
+        M_[:,-2] *= i
+        cand.append(M_)
+    for Mat in cand:
+        for row in Mat.LLL():
+            if row[-1] != 0:
+                continue
+            if row[-2] == i:
+                row *= -1
+            if row[-2] == -i:
+                try:
+                    flag = b"idek{" +bytes([val+ aa for val in row[:-2]]) + b"}"
+                    print(flag)
+                    break
+                except:
+                    continue
 ```
 
+Flag: `b'idek{tks_f0r_ur_t1ck3t_xD}'`
+Note: Trong sage thì để copy 2 ma trận ta sẽ dùng cú pháp `copy(M)`. Lưu ý là không được gán kiểu `M_ = M` vì thực chất lúc này `M_` và `M` sẽ trỏ vào chung một object nên khi `M_` thay đổi thì `M` cũng thay đổi theo. 
+```python
+sage: M = [1,2]
+sage: M_ = M
+sage: M_.append(3)
+sage: M_
+[1, 2, 3]
+sage: M
+[1, 2, 3]
+sage:
+```
 
 
 

@@ -1,2 +1,0 @@
-Some implement
-## Polynomial

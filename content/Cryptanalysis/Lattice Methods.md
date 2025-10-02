@@ -1455,6 +1455,7 @@ sage:
 ```
 
 
+### CrewCTF 2024 - Boring LCG 
 
 
 ## Tài liệu tham khảo

@@ -52,7 +52,6 @@ $$
 $$
 vì $\displaystyle \frac{a_{n-1}}{p( a_{n-1})} \leqslant q-1$ do đó dầu bằng xảy ra và $\displaystyle \frac{a_{n}}{p( a_{n})} =q$. Vậy $\displaystyle a_{n} =pq$ trong đó $\displaystyle p< q$ và lặp lại quá trình như trên ta cũng có được dãy 
 $$
-\begin{equation*}
 pq,( p+1) q,...,q^{2}
-\end{equation*}
-$$và dãy lại sinh ra một số chính phương mới. Suy ra ta có điều phải chứng minh. 
+$$
+và dãy lại sinh ra một số chính phương mới. Suy ra ta có điều phải chứng minh. 

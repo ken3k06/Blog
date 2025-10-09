@@ -806,6 +806,12 @@ Ngoài ra còn một phiên bản khác là CRT-ACD mọi người có thể xem
 
 Tiếp theo là các cách attacks cho bài toán trên
 
+Tóm lại, bài toán ACD với tham số $(\gamma,\eta,\rho)$ là bài toán tìm lại giá trị bí mật $p$ từ một tập mẫu thử có dạng $x_i = pq_i+r_i$ trong đó 
+- $p$ có độ lớn $\eta$ bits, 
+- các số $r_i$ được phân bố đều trong khoảng $[-2^\rho+1,2^\rho-1]\cap \mathbb{Z}$
+- các số $q_i$ được phân bố đều trong khoảng $[0,2^{\gamma-\eta}] \cap \mathbb{Z}$ 
+
+
 ### Simultaneous Diophantine approximation - SDA
 Attack này được dùng trong trường hợp giá trị làm nhiễu quá lớn để có thể vét cạn và ta có nhiều mẫu bị nhiễu. Tức là các giá trị $r_i$ lớn và ta được biết nhiều giá trị $x_i$. 
 Ý tưởng chính của attack này đó là từ phương trình $x_i = pq_i + r_i$  với $1 \leq i \leq t$ thì ta có thể viết lại dưới dạng: 
@@ -1549,7 +1555,91 @@ sage:
 ```
 
 
-### CrewCTF 2024 - Boring LCG 
+### Bigger RSA - ICTF 2025
+Source code của bài:
+```python
+from Crypto.Util.number import getPrime, bytes_to_long
+import secrets
+
+n = 32
+e = 0x10001
+N = 64
+
+flag = b'ictf{REDACTED}'
+flag = secrets.token_bytes((n * 63) - len(flag)) + flag
+
+ps = [getPrime(512) for _ in range(n)]
+
+m = 1
+for i in ps:
+    m *= i
+
+nums = [CRT([1 + secrets.randbits(260) for _ in range(n)],ps) for __ in range(N)]
+ct = pow(bytes_to_long(flag),e,m)
+print(f"ct={ct}")
+print(f"m={m}")
+print(f"nums={nums}")
+```
+
+**Tóm tắt**
+Flag ban đầu được padding thêm với độ dài là $32 \times 64$ 
+Tiếp theo ta có $ps=(p_1,...,p_{32})$ là danh sách 32 số nguyên tố 512 bits và modulo $m=\prod p_i$  
+`nums` là danh sách gồm kết quả các lần lấy CRT giữa $ps$ và một danh sách gồm các số nguyên ngẫu nhiên 260 bits.
+Mỗi số như vậy, ta kí hiệu $n_k$, và nó thỏa mãn 
+$$
+n_k  = CRT([r_k],[ps])
+$$
+$r_k$ là một danh sách, hay một vector có độ dài là $n$ và được sinh ngẫu nhiên. Có 64 số $n_k$ như vậy. 
+Cuối cùng, flag của ta được mã hóa bởi $c=f^e \bmod m$ và như mọi bài RSA khác ta cần tính được $d$ hoặc factor được $m$ để khôi phục lại được flag. 
+
+Ta thử biến đổi một chút giả thiết xem có gì đặc biệt hay không. Đầu tiên thì
+$$
+n_k \equiv r_{k,i} \bmod p_i
+$$
+với mỗi số nguyên tố thứ $i$ trong danh sách còn $r_{k,i}$ là phần tử thứ $i$ trong vector $r_k = (r_{k,1},...,r_{k,n})$
+Để ý là $r_{k,i}$ chỉ có độ lớn 260 bits so với các số nguyên tố $p_i$ là 512 bits. Vậy có gì sus ở đây? Đó là số samples $n_k$ lớn hơn số lượng số nguyên tố. Hơn nữa các giá trị $r_{k,i}$ lại quá bé so với $p_i$.
+
+Bây giờ, lấy $p$ là một ước nguyên tố bất kì của $m$. Ta có thể viết lại thành bài toán ACD như sau:
+Với mỗi $n_i$ thì 
+$$
+\begin{array}{l}
+n_i \bmod p = r_{i} \\
+\rightarrow n_i = q_ip + r_{i}
+\end{array}
+$$
+Trong đó $k_i$ là dương. Như vậy $n_i$ là các samples, $p$ là số nguyên tố cần tìm, $r_{i}$ là các giá trị nhiễu. 
+Ta còn được biết thêm $m=q_0p$ cho nên bài toán trở thành bài toán PACD. 
+Ta xét ma trận cơ sở sau cho lattice: 
+$$
+\begin{equation*}
+\begin{pmatrix}
+2^{\rho } & n_{1} & \dotsc  & n_{t}\\
+ & -m &  & \\
+ &  & \ddots  & \\
+ &  &  & -m
+\end{pmatrix}
+\end{equation*}
+$$
+
+Với tổ hợp tuyến tính $\displaystyle ( q_{0} ,q_{1} ,...,q_{t})$ ta có được 
+$$
+\begin{gather*}
+( q_{0} ,q_{1} ,...,q_{t})\begin{pmatrix}
+2^{\rho } & n_{1} & \dotsc  & n_{t}\\
+ & -m &  & \\
+ &  & \ddots  & \\
+ &  &  & -m
+\end{pmatrix} =\left( q_{0} 2^{\rho } ,q_{0} n_{1} -mq_{1} ,...\right)\\
+=\left( q_{0} 2^{\rho } ,q_{0} r_{1} ,...,q_{0} r_{t}\right)
+\end{gather*}
+$$
+Vì $\displaystyle q_{0} n_{1} -mq_{1} =q_{0} n_{1} -q_{0} pq_{1} =q_{0}( n_{1} -pq_{1}) =q_{0} r_{1}$. 
+
+
+
+
+
+
 
 
 ## Tài liệu tham khảo

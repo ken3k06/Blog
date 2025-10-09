@@ -1,0 +1,33 @@
+**Định lý Van der Waerden:** Cho trước $\displaystyle m,n$ nguyên dương. Chứng minh rằng tồn tại số nguyên dương $\displaystyle B( m,n)$ sao cho nếu ta tô màu các số tự nhiên nhỏ hơn $\displaystyle B( m,n)$ bằng $\displaystyle n$ màu thì sẽ luôn tồn tại một cấp số cộng có độ dài $\displaystyle m$. 
+
+*Chứng minh.*
+Ta sẽ chứng minh kết quả của bài toán và xây dựng số $\displaystyle B( m,n)$ bằng quy nạp theo $\displaystyle m$. Thật vậy, ta có thể lấy $\displaystyle B( 1,n) =1$ để thỏa mãn trong trường hợp $\displaystyle m=1$. Tiếp theo xét $\displaystyle B( 2,n) =N$. Ta cần tô màu các số bé hơn $\displaystyle N$ cụ thể là các số $\displaystyle \{1,2,...,N\}$ bởi $\displaystyle n$ màu sao cho tồn tại một cấp số cộng độ dài $\displaystyle m$. Ở đây thao tác tô màu có thể xem là "dán nhãn" các số nguyên. Lúc này các số từ $\displaystyle 1$ đến $\displaystyle N$ chỉ cần có 2 số được tô cùng một màu thì sẽ tạo thành một cấp số cộng độ dài 2. Vậy theo nguyên lí Dirichlet thì chỉ cần $\displaystyle N=n+1$ thì yêu cầu bài toán sẽ thỏa mãn. Vậy $\displaystyle B( 2,n) =n+1$. 
+
+Các bạn hãy thử xét và tìm xem $\displaystyle B( 3,n)$ sẽ cho kết quả là bao nhiêu. 
+
+Bây giờ, ta sẽ đi tiến hành bước quy nạp cho bài toán. Giả sử bài toán đã đúng đến $\displaystyle m-1$, hay ta đã xác định được $\displaystyle B( m-1,n)$ với mọi số nguyên dương $\displaystyle n$ $\displaystyle ( m\geqslant 3)$. Ta sẽ chứng minh là bài toán đúng đến $\displaystyle m$. Với mỗi $\displaystyle n,p$ tự nhiên, $\displaystyle n\geqslant 1,n\geqslant p$ ta sẽ xây dựng bằng quy nạp theo số $\displaystyle p$ số $\displaystyle C( m,n,p)$ thỏa mãn điều kiện sau: \ Với mọi cách tô $\displaystyle n$ màu cho các số tự nhiên nhỏ hơn $\displaystyle C( m,n,p)$ thì hoặc tồn tại một cấp số cộng độ dài $\displaystyle m$ cùng màu, hoặc tồn tại một số tự nhiên $\displaystyle x< C( m,n,p)$ sao cho $\displaystyle x$ là số mở rộng của $\displaystyle p$ cấp số cộng độ dài $\displaystyle m-1$ cùng màu, mỗi cấp số cộng đó lại là một màu khác nhau. Ở đây, ta định nghĩa số mở rộng của một cấp số cộng là số tiếp theo của cấp số cộng đó. 
+
+Với $\displaystyle p=0$, ta có thể lấy ngay $\displaystyle C( m,n,0) =1$, hiển nhiên thỏa mãn
+
+Giả sử kết quả bài toán trên đúng với mọi số tự nhiên từ 0 đến $\displaystyle p-1$. Ta chứng minh sẽ xây dựng được một số $\displaystyle C( m,n,p)$ thỏa mãn điều kiện bài toán. 
+
+Ta lấy $\displaystyle C( m,n,p) =2C( m,n,p-1) B\left( m-1,n^{C( m,n,p-1)}\right)$ (ta đã xây dựng được các hằng số này bằng quy nạp) Ta cũng xét một cách tô màu các số tự nhiên nhỏ hơn $\displaystyle C( m,n,p)$ bằng $\displaystyle n$ màu, và giả sử không có cấp số cộng độ dài $\displaystyle m$ nào có cùng màu. Ta cũng giả sử các màu được đánh số tự 0 đến $\displaystyle n-1$. 
+
+Ta xét một dãy các số tự nhiên mới từ 0 đến $\displaystyle \frac{C( m,n,p)}{C( m,n,p-1)} -1$ và ta sẽ tô dãy này bằng $\displaystyle n^{C( m,n,p-1)}$ màu. Cụ thể hơn, ta sẽ tô số thứ $\displaystyle i$ bởi màu có chỉ số là màu của các số từ số thứ $\displaystyle iC( m,n,p-1)$ tới số thứ $\displaystyle ( i+1) C( m,n,p-1) -1$, viết liền lại như một số trong hệ $\displaystyle n$-phân. Khi đó, hai số $\displaystyle i_{1}$ và $\displaystyle i_{2}$ trong dãy mới cùng màu trong dãy mới này khi và chỉ khi với mọi số tự nhiên $\displaystyle j< C( m,n,p-1)$ thì số thứ $\displaystyle i_{1} C( m,n,p-1) +j$ và số thứ $\displaystyle i_{2} C( m,n,p-1) +j$ cùng màu trong dãy cũ. 
+
+Do ta có $\displaystyle \frac{C( m,n,p)}{C( m,n,p-1)} =2B\left( m-1,n^{C( m,n,p-1)}\right)$ nên sẽ tồn tại một cấp số cộng độ dài $\displaystyle m-1$ có cùng màu trong $\displaystyle B\left( m-1,n^{C( m,n,p-1)}\right)$ số đầu tiên của dãy mới. Giả sử cấp số cộng này được viết dưới dạng $\displaystyle u+id$, với $\displaystyle u,d$ là các số tự nhiên cố định, $\displaystyle d >0$ và $\displaystyle i$ từ 0 đến $\displaystyle m-2$. Lưu ý rằng $\displaystyle u+( i-2) d< B\left( m-1,n^{C( m,n,p-1)}\right)$, nên ta có $\displaystyle u+( i-1) d< 2B\left( m-1,n^{C( m,n,p-1)}\right)$
+
+Ta xét các số từ số thứ $uC(m,n,p-1)$ tới số thứ $(u+1)C(m,n,p-1)-1$ trong dãy cũ. Do đây là $C(m,n,p-1)$ số liên tiếp và ta đang giả sử không tồn tại cấp số cộng độ dài $m$ cùng màu nên sẽ tồn tại một số $x< C(m,n,p-1)$ để $uC(m,n,p-1)+x$ là số mở rộng của $p-1$ cấp số cộng độ dài $m-1$ cùng màu, mỗi cấp số cộng đó lại là một màu khác nhau, và các cấp số cộng đó được chứa trong các số từ số thứ $uC(m,n,p-1)$ tới số thứ $(u+1)C(m,n,p-1)-1$. Bản thân $x$ cũng sẽ phải khác màu của $p-1$ cấp số cộng trên, để tránh tạo ra cấp số cộng độ dài $m$ cùng màu.
+
+Ta sẽ chứng minh $(u+(m-1)d)C(m,n,p-1)+x$ sẽ là số mở rộng của $p$ cấp số cộng độ dài $m-1$ cùng màu, và các cấp số cộng đó đôi một khác màu nhau. Thật vậy, $(u+(m-1)d)C(m,n,p-1)+x$ là số mở rộng của cấp số cộng cùng màu độ dài $m-1$ là $(u+id)C(m,n,p-1)+x,i$ từ 0 đến $m-2$, và theo cách chọn $u,d$; đây là cấp số cộng cùng màu.
+Lấy một trong $p-1$ cấp số cộng cùng màu độ dài $m-1$ mà $uC(m,n,p-1)+x$ là số mở rộng: $uC(m,n,p-1)+u^{\prime } +jd^{\prime }$, với $u^{\prime } ,d^{\prime }$ là các số tự nhiên, $d^{\prime }  >0$ và $j$ từ 0 đến $m-2$ thoả mãn $u^{\prime } +(m-1)d^{\prime } =x$.
+
+Khi đó, $(u+(m-1)d)C(m,n,p-1)+x$ là số mở rộng của cấp số cộng cùng màu độ dài $m-1$ là $(u+id)C(m,n,p-1)+\left( u^{\prime } +id^{\prime }\right)$, với $i$ từ 0 đến $m-2$, và theo cách chọn $u,d,u^{\prime } ,d^{\prime }$; đây là cấp số cộng cùng màu. Ta làm tương tự với các cấp số cộng độ dài $m-1$ còn lại mà $uC(m,n,p-1)+x$ là số mở rộng.
+
+Tổng cộng lại, ta sẽ có $p-1$ cấp số cộng cảm sinh từ dãy cũ và một cấp số cộng mới mà $(u+(m-1)d)C(m,n,p-1)+x$ là số mở rộng. Lưu ý rằng ta có thể thấy được rằng $p$ cấp số cộng nêu trên đôi một khac màu nhau, do $uC(m,n,p-1)+x$ khác màu với các số có dạng $uC(m,n,p-1)+u^{\prime } +jd^{\prime }$.
+
+Vậy ta có $C(m,n,p)=2C(m,n,p-1)B\left( m-1,n^{C(m,n,p-1)}\right)$ thoả mãn, ta đã quy nạp xong và xây dựng được $C(m,n,p)$ với mọi $m,n\geq 1,0\leq p\leq n$.
+
+Sau khi ta xây dựng được $C(m,n,p)$ như trên thì với mọi số nguyên dương $n$, ta chỉ cần lấy $B(m,n)=C(m,n,n)$ là xong, do khi đó thì hoặc là có cấp số cộng độ dài $m$, hoặc sẽ tồn tại một số tự nhiên là số mở rộng của $n$ cấp số cộng độ dài $m-1$ mà đội một khác màu nhau. Nhưng số tự nhiên đó cũng phải có một trong $n$ màu, và vì vậy sẽ có thể thêm vào một trong $n$ cấp số cộng độ dài $m-1$ nói trên để tạo ra một cấp số cộng độ dài $m$ cùng màu, xong! Vậy ta đã chứng minh được định lý Van der Waerden.
+
+- Tài liệu: https://web.mat.upc.edu/juan.jose.rue/dmII-FU/Proof%20of%20VdW%20theorem.pdf

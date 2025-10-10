@@ -1,5 +1,5 @@
 Trước đó ở bài [[Ideal and Gröbner Basis]] mình có nhắc qua khái niệm về Idean. Ở bài viết này mình sẽ đi sâu hơn vào các tính chất của nó
-
+Nhắc lại : $V(f)$ là tập nghiệm của đa thức $f$ còn $V(S)$ là tập nghiệm của hệ đa thức $S$ trong $k[X]$. 
 ## Idean căn 
 Cho $V$ là một tập điểm tùy ý trong $\mathbb{A}^n$. Kí hiệu 
 $$
@@ -19,5 +19,12 @@ $$
 f = h(x^3-y^2)+uy+v
 $$
 với $u,v \in k[x]$. Do $V \subset V(x^3-y^2)=\{(\alpha^2,\alpha^3) | \ \alpha \in k\}$  nên nếu $f \in I_V$ thì $f(\alpha^2, \alpha^3)=u(\alpha^2)\alpha^3+v(\alpha^2)$ với mọi $\alpha$ thuộc vào một tập vô hạn trong $k$. Từ đây suy ra $u(x^2)x^3+v(x^2) = 0$. Do đa thức $u(x^2)x^3$ chỉ chứa các đơn thức bậc lẻ và đa thức $v(x^2)$ chỉ chứa các đơn thức bậc chẵn, nên ta phải có $u(x^2)x^3=0$ và $v(x^2)=0$. Từ đây suy ra $u=0$ và $v=0$. Do đó có điều phải chứng minh. 
+
+Cho $V$ và $W$ là hai tập điểm tùy ý trong $\mathbb{A}^n$. Dễ thấy rằng $I_V \supseteq I_W$ nếu $V \subseteq W$ và 
+$$
+I_V \cap I_W = I_{V \cup W}
+$$
+Ta biết rằng giao của các tập đại số chứa $V$ cũng là tập đại số 
+
 
 

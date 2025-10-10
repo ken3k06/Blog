@@ -25,3 +25,4 @@ Từ hai trường hợp nhỏ trên ta kết luận rằng, với mỗi $\displ
 
 Bây giờ gọi $\displaystyle \{c_{1} ,c_{2} ,...,c_{n}\}$ là các số thuộc tập $\displaystyle C$ thì $\displaystyle \{c_{1} -1,c_{2} -1,...,c_{n} -1\} \in A$. Vì các số $\displaystyle c_{i}$ là phân biệt cho nên $\displaystyle c_{i} -1\neq c_{j} -1,\forall i\neq j$. Do $\displaystyle |A|\geqslant n$ mà $\displaystyle |A|=n$ cho nên các số trên cũng chính là các số thuộc tập $\displaystyle A$. Do $\displaystyle 1\in A$ nên tồn tại $\displaystyle i$ để $\displaystyle c_{i} -1=1$ hay $\displaystyle 2\in C$ nhưng mâu thuẫn với nhận xét ở trên rằng $\displaystyle 2\notin C$. Vậy ta có điều phải chứng minh. 
 
+[[Olympiad/Combinatorics/Problem 2.|Problem 2.]]

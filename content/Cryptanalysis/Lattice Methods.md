@@ -1620,20 +1620,8 @@ $$
 \end{pmatrix}
 \end{equation*}
 $$
+Tham khảo paper sau: https://eprint.iacr.org/2024/1125
 
-Với tổ hợp tuyến tính $\displaystyle ( q_{0} ,q_{1} ,...,q_{t})$ ta có được 
-$$
-\begin{gather*}
-( q_{0} ,q_{1} ,...,q_{t})\begin{pmatrix}
-2^{\rho } & n_{1} & \dotsc  & n_{t}\\
- & -m &  & \\
- &  & \ddots  & \\
- &  &  & -m
-\end{pmatrix} =\left( q_{0} 2^{\rho } ,q_{0} n_{1} -mq_{1} ,...\right)\\
-=\left( q_{0} 2^{\rho } ,q_{0} r_{1} ,...,q_{0} r_{t}\right)
-\end{gather*}
-$$
-Vì $\displaystyle q_{0} n_{1} -mq_{1} =q_{0} n_{1} -q_{0} pq_{1} =q_{0}( n_{1} -pq_{1}) =q_{0} r_{1}$. 
 
 
 

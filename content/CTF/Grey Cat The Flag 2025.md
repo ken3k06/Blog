@@ -694,12 +694,14 @@ Bước tiếp theo là khôi phục lại flag.
 Tương tự như trên thì ta cũng sẽ lấy về 2 giá trị $\displaystyle r_{1} ,r_{2}$. 
 Ta sẽ thử khôi phục từ bytes thứ 5 vì ta đã biết 4 bytes đầu rồi. Lúc này ta để ý tới tính chất sau: 
 
-$$\begin{gather*}
+$$
+\begin{gather*}
 r_{1}[ 5] \oplus d=flag[ 5] \oplus x[ 5] \oplus d\\
 \Longrightarrow r_{1}[ 5] \oplus d_{1} =x[ 5]\\
 r_{2}[ 5] =p( flag)[ 5] \oplus x[ 5]\\
 \Longrightarrow r_{2}[ 5] \oplus d_{2} =x[ 5]
-\end{gather*}$$
+\end{gather*}
+$$
 
 Cho nên ta sẽ cho $\displaystyle d_{i}$ chạy trong tập các kí tự cho tới khi hai giá trị trên bằng nhau. Ta sẽ thử chạy nhiều lần để xem thử kí tự $\displaystyle d$ nào xuất hiện nhiều nhất thì nó chính là kí tự tiếp theo của flag.
 

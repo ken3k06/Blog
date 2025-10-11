@@ -34,29 +34,37 @@ Có hai điểm đáng chú ý ở bài này: Đầu tiên số mũ lập mã $\
 
 Đầu tiên với $\displaystyle b$ bất kì thì hàm `bytes_to_long` sẽ chuyển đổi giá trị từ bytes sang số nguyên như sau
 
-$$\begin{equation*}
+$$
+\begin{equation*}
 bytes-to-long(b)=\sum_{i=0}^{len( b) -1} b[ i] \times 256^{len( b) -1-i}
-\end{equation*}$$
+\end{equation*}
+$$
 
 
 Mà flag được lặp lại 1337 lần cho nên 
 
-$$\begin{equation*}
+$$
+\begin{equation*}
 m=\underbrace{f\| f\| ...\| f}_{1337}
-\end{equation*}$$
+\end{equation*}
+$$
 
 Cho nên 
 
-$$\begin{gather*}
+$$
+\begin{gather*}
 m=f\times 256^{26( 1337-1)} +f\times 256^{26( 1337-2)} +...+f\times 256^{0}\\
 \Longrightarrow m=f\times \sum_{i=0}^{k-1} B^{li}
-\end{gather*}$$
+\end{gather*}
+$$
 
 trong đó $\displaystyle l=26$ là độ dài của flag và $\displaystyle k=1337,B=256$. Ta sẽ tính small roots ở bước kế tiếp. Cụ thể
 
-$$\begin{equation*}
+$$
+\begin{equation*}
 c=m^{e} =( f\times S)^{e}\bmod n
-\end{equation*}$$
+\end{equation*}
+$$
 
 trong đó $\displaystyle S=\sum _{i=0}^{1336} 256^{26i}$. Suy ra $\displaystyle f^{e} =c\times S^{-e}\bmod n$. Đa thức mà ta khởi tạo sẽ là $\displaystyle f( x) =x^{e} -c'\bmod n$ với $\displaystyle c'=c\times S^{-e}$
 

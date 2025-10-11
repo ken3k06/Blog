@@ -1,0 +1,933 @@
+## Crypto/Uwusignatures
+Source code của bài:
+
+```python
+from Crypto.Util.number import *
+import json
+import hashlib
+
+KEY_LENGTH = 2048
+FLAG = "grey{fakeflagfornow}"
+
+class Uwu:
+    def __init__(self, keylen):
+        self.p = getPrime(keylen)
+        self.g = getRandomRange(1, self.p)
+        self.x = getRandomRange(2, self.p) # x is private key
+        self.y = pow(self.g, self.x, self.p) # y is public key
+        self.k = getRandomRange(1, self.p)
+        while GCD(self.k, self.p - 1) != 1:
+            self.k = getRandomRange(1, self.p)
+        print(f"{self.p :} {self.g :} {self.y :}")
+        print(f"k: {self.k}")
+    def hash_m(self, m):
+        sha = hashlib.sha256()
+        sha.update(long_to_bytes(m))
+        return bytes_to_long(sha.digest())
+    def sign(self, m):
+        assert m > 0
+        assert m < self.p
+        h = self.hash_m(m)
+        r = pow(self.g, self.k, self.p)
+        s = ((h - self.x * r) * pow(self.k, -1, self.p - 1)) % (self.p - 1) 
+        return (r, s)
+    def verify(self, m, signature):
+        r, s = signature
+        assert r >= 1
+        assert r < self.p
+        h = self.hash_m(m)
+        lhs = pow(self.g, h, self.p)
+        rhs = (pow(self.y, r, self.p) * pow(r, s, self.p)) % self.p
+        return lhs == rhs 
+
+def main():
+    print("Welcome to my super uwu secure digital signature scheme!")
+    uwu = Uwu(KEY_LENGTH)
+    sign_count = 0   
+    while True:
+        print("1. Show me some of your cutesy patootie signatures!")
+        print("2. Get some of my uwu signatures (max 2)")
+        choice = int(input("> "))
+        if choice == 1:
+            data = json.loads(input("Send me a message and a signature: "))
+            m, r, s = data["m"], data["r"], data["s"]
+            if m == bytes_to_long(b"gib flag pls uwu"):
+                if uwu.verify(m, (r, s)):
+                    print("Very cutesy, very mindful, very demure!")
+                    print(FLAG)
+                    exit()
+                else:
+                    print("Very cutesy, but not very mindful")
+                    exit()
+            else:
+                print("Not very cutesy")
+                exit()
+        elif choice == 2:
+            if sign_count >= 2:
+                print("Y-Y-You'd steal from poor me? U_U")
+                exit()
+            data = json.loads(input("Send me a message: "))
+            m = data["m"]
+            if type(m) is not int or m == bytes_to_long(b"gib flag pls uwu"):
+                print("Y-Y-You'd trick poor me? U_U")
+                exit()
+            r, s = uwu.sign(m)
+            print(f"Here's your uwu signature! {s :}")
+            sign_count += 1
+        else:
+            print("Not very smart of you OmO")
+            exit()
+
+if __name__ == "__main__":
+    main()
+```
+Đầu tiên là sinh các tham số. Ta có các số $\displaystyle p,g,x,y,k$. $\displaystyle p$ là một số nguyên tố có độ lớn 2048 bit. 
+
+Tiếp đến nó sẽ tính $\displaystyle y=g^{x}$ trong đó $\displaystyle x$ là khóa bí mật còn $\displaystyle y$ là khóa công khai. $\displaystyle k$ là số được chọn thỏa mãn $\displaystyle \gcd( k,p-1) =1$. 
+
+Tiếp theo là hàm $\displaystyle HASH( m)$. Nó sẽ tính hash của một số nguyên $\displaystyle m$ và trả về giá trị dưới dạng bytes. 
+
+Hàm sign sẽ kí một message $\displaystyle m$ bằng cách tính $\displaystyle h=HASH( m)$. Sau đó nó sẽ tính $\displaystyle r=g^{k}\bmod p$ và $\displaystyle s=( h-xr) \times k^{-1}\bmod( p-1)$. Ta sẽ nhận được cặp $\displaystyle ( r,s)$.
+
+Để verify chữ kí thì ta cần nhập một cặp số $\displaystyle ( r,s)$ vào. Sau đó hàm sẽ kiểm tra điều kiện 
+$$
+\begin{equation*}
+g^{h} \equiv \left( y^{r} \times r^{s}\right)\bmod p
+\end{equation*}
+$$
+
+Nếu thỏa thì chữ kí là hợp lệ.
+
+**Chứng minh** $\displaystyle g^{h} =y^{r} \times r^{s}\bmod p$. 
+
+Đầu tiên ta có $\displaystyle y=g^{x}\bmod p$ thì khi đó $\displaystyle y^{r} =g^{xr}\bmod p$. Còn $\displaystyle r^{s} =g^{ks}\bmod p$ cho nên $\displaystyle y^{r} \times r^{s} =g^{xr+ks}\bmod p=g^{h}\bmod p$ vì $\displaystyle s=( h-xr) \times k^{-1}\bmod p-1$. Mà ta có tính chất $\displaystyle g^{a} =g^{b}\bmod p$ khi và chỉ khi $\displaystyle a\equiv b\bmod p-1$. Vậy ta có điều phải chứng minh. 
+
+Bây giờ để lấy lại flag thì ta cần gửi một chữ kí hợp lệ của message `b'gib flag pls uwu'`. 
+
+Để forge chữ kí thì ta cần có được giá trị của $\displaystyle x$. Ta có thể tính lại $\displaystyle x$ bằng một cặp $\displaystyle ( r,s)$ như sau:
+
+Giả sử ta có 
+
+$$
+\begin{gather*}
+s=( h-xr) \times k^{-1}\bmod p-1\\
+\Longrightarrow sk=h-xr\bmod p-1\\
+\Longrightarrow \frac{h-sk}{r} =x\bmod p-1
+\end{gather*}
+$$
+
+Để tính được $\displaystyle x$ thì cần điều kiện $\displaystyle \gcd( r,p-1) =1$. Hmm cái này thì không chắc chắn 100\% nên mình spam server cho tới khi nào nó nguyên tố cùng nhau thì thôi. 
+
+Còn nếu không muốn dựa vào vận may thì có thể gửi 2 msg khác nhau và giải hệ phương trình tìm lại $x$ (~~mình khá may vì spam tới lần thứ 2 thì được~~)
+Code giải:
+
+```python
+from pwn import *
+from Crypto.Util.number import *
+import hashlib 
+import json
+from math import gcd
+r = remote("challs.nusgreyhats.org", 33301)
+
+def hash_m(m):
+	sha = hashlib.sha256()
+	sha.update(long_to_bytes(m))
+	return bytes_to_long(sha.digest())
+
+r.recvuntil(b"Welcome to my super uwu secure digital signature scheme!\n")
+line = r.recvline().decode()
+p, g, y = map(int,line.strip().split())
+line = r.recvline().decode()
+k = int(line.strip().split(":")[1].strip())
+log.info(f"p = {p}")
+log.info(f"g = {g}")
+log.info(f"y = {y}")
+log.info(f"k = {k}")
+
+# get sign
+
+def get_sign(m):
+	r.sendlineafter("> ",b"2")
+	r.sendlineafter(b"Send me a message: ",json.dumps({"m":m}).encode())
+	line = r.recvline()
+	s = int(line.strip().split()[-1])
+	return s
+r_forge = pow(g,k,p)
+assert gcd(r_forge,p-1) == 1
+m = 12345
+h = hash_m(m)
+s = get_sign(m)
+r_inv = pow(r_forge,-1,p-1)
+x = ((h-s*k)*r_inv) % (p-1)
+msg = b"gib flag pls uwu"
+m_forge = bytes_to_long(msg)
+h_forge = hash_m(m_forge)
+s_forge = ((h_forge - x*r_forge) * pow(k,-1,p-1)) % (p-1)
+r.sendlineafter("> ",b"1")
+payload = {"m" : m_forge, "r":r_forge, "s": s_forge}
+r.sendlineafter("Send me a message and a signature:", json.dumps(payload).encode())
+r.interactive()
+```
+Flag: `grey{h_h_H_h0wd_y0u_Do_tH4T_OMO}`
+## Crypto/Idk
+Một bài về ZKP
+
+Bài cho ta 2 file prover.py và verifier.py như sau:
+
+```python
+# prover.py
+import hashlib
+from math import ceil, log2
+from pwn import remote
+from Crypto.Util.number import GCD, inverse
+import random
+
+# Secret values for p and q
+p = 1337
+q = 1337
+
+N = (
+    15259097618051614944787283201589661884102249046616617256551480013493757323043057001133186203348289474506700039004930848402024292749905563056243342761253435345816868449755336453407731146923196889610809491263200406510991293039335293922238906575279513387821338778400627499247445875657691237123480841964214842823837627909211018434713132509495011638024236950770898539782783100892213299968842119162995568246332594379413334064200048625302908007017119275389226217690052712216992320294529086400612432370014378344799040883185774674160252898485975444900325929903357977580734114234840431642981854150872126659027766615908376730393
+)
+
+# From https://rosettacode.org/wiki/Jacobi_symbol#Python
+def jacobi(a, n):
+    if n <= 0:
+        raise ValueError("'n' must be a positive integer.")
+    if n % 2 == 0:
+        raise ValueError("'n' must be odd.")
+    a %= n
+    result = 1
+    while a != 0:
+        e = 0
+        while a % 2 == 0:
+            a //= 2
+            e += 1
+        if e % 2 == 1:
+            if n % 8 in (3, 5):
+                result = -result
+        if (a % 4 == 3) and (n % 4 == 3):
+            result = -result
+        a, n = n % a, a
+    if n == 1:
+        return result
+    else:
+        return 0
+
+# From https://rosettacode.org/wiki/Tonelli-Shanks_algorithm#Python
+def legendre(a, p):
+    return pow(a, (p - 1) // 2, p)
+
+def tonelli(n, p):
+    assert legendre(n, p) == 1, "not a square (mod p)"
+    q = p - 1
+    s = 0
+    while q % 2 == 0:
+        q //= 2
+        s += 1
+    if s == 1:
+        return pow(n, (p + 1) // 4, p)
+    for z in range(2, p):
+        if p - 1 == legendre(z, p):
+            break
+    c = pow(z, q, p)
+    r = pow(n, (q + 1) // 2, p)
+    t = pow(n, q, p)
+    m = s
+    t2 = 0
+    while (t - 1) % p != 0:
+        t2 = (t * t) % p
+        for i in range(1, m):
+            if (t2 - 1) % p == 0:
+                break
+            t2 = (t2 * t2) % p
+        b = pow(c, 1 << (m - i - 1), p)
+        r = (r * b) % p
+        c = (b * b) % p
+        t = (t * c) % p
+        m = i
+    return r
+
+def crt_combine(r_p, p, r_q, q):
+    inv_p_mod_q = inverse(p, q)
+    y = ((r_q - r_p) * inv_p_mod_q) % q
+    x = r_p + p * y
+    return x % (p * q)
+
+def int_to_bytes(x):
+    return x.to_bytes((x.bit_length() + 7) // 8 or 1, 'big')
+
+def gen_rho_ZN(N, idx):
+    attempt = 0
+    while True:
+        h = hashlib.sha256()
+        h.update(b'Z')
+        h.update(int_to_bytes(N))
+        h.update(idx.to_bytes(4, 'big'))
+        h.update(attempt.to_bytes(4, 'big'))
+        candidate = int.from_bytes(h.digest(), 'big') % N
+        if 1 < candidate < N and GCD(candidate, N) == 1:
+            return candidate
+        attempt += 1
+
+def gen_theta_J(N, idx, F_bytes):
+    attempt = 0
+    while True:
+        h = hashlib.sha256()
+        h.update(b'J')
+        h.update(int_to_bytes(N))
+        h.update(idx.to_bytes(4, 'big'))
+        h.update(F_bytes)
+        h.update(attempt.to_bytes(4, 'big'))
+        candidate = int.from_bytes(h.digest(), 'big') % N
+        if 1 < candidate < N and GCD(candidate, N) == 1 and jacobi(candidate, N) == 1:
+            return candidate
+        attempt += 1
+
+kappa = 128
+alpha = 65537
+m1 = ceil(kappa / log2(alpha))
+m2 = ceil(kappa * 32 * 0.69314718056)
+
+phi = (p - 1) * (q - 1)
+
+F_bytes = b'this_is_a_secret'
+F_hex = F_bytes.hex()
+
+sigmas = []
+invN_mod_phi = inverse(N, phi)
+for i in range(1, m1 + 1):
+    rho_i = gen_rho_ZN(N, i)
+    sigma_i = pow(rho_i, invN_mod_phi, N)
+    sigmas.append(sigma_i)
+
+flip_prob = 0.5
+mus = []
+for j in range(1, m2 + 1):
+    theta_j = gen_theta_J(N, m1 + j, F_bytes)
+
+    if pow(theta_j, (p - 1) // 2, p) == 1 and pow(theta_j, (q - 1) // 2, q) == 1:
+        r_p = tonelli(theta_j % p, p)
+        r_q = tonelli(theta_j % q, q)
+        if random.random() < flip_prob:
+            r_p = -r_p % p
+        mu_j = crt_combine(r_p, p, r_q, q)
+        mus.append(mu_j)
+    else:
+        mus.append(0)
+
+
+HOST = "127.0.0.1"
+PORT = 1337
+conn = remote(HOST, PORT)
+
+# Makeshift wireshark
+# I hate parsing pcaps as much as the next guy
+with open(f"dump.txt", "w") as dump_f:
+    dump_f.write(F_hex + "\n")
+    conn.sendline(F_hex)
+
+    for sigma in sigmas:
+        line = format(sigma, "x")
+        dump_f.write(line + "\n")
+        conn.sendline(format(sigma, "x"))
+
+    for mu in mus:
+        line = format(mu, "x")
+        dump_f.write(line + "\n")
+        conn.sendline(format(mu, "x"))
+
+    try:
+        reply = conn.recvline(timeout=5)
+        if reply:
+            dump_f.write(reply.decode().strip() + "\n")
+            print("Verifier response:", reply.decode().strip())
+    except:
+        pass
+
+conn.close()
+```
+
+```python
+# verifier.py
+import hashlib
+from math import ceil, log2
+from pwn import listen
+from Crypto.Util.number import GCD
+
+N = 15259097618051614944787283201589661884102249046616617256551480013493757323043057001133186203348289474506700039004930848402024292749905563056243342761253435345816868449755336453407731146923196889610809491263200406510991293039335293922238906575279513387821338778400627499247445875657691237123480841964214842823837627909211018434713132509495011638024236950770898539782783100892213299968842119162995568246332594379413334064200048625302908007017119275389226217690052712216992320294529086400612432370014378344799040883185774674160252898485975444900325929903357977580734114234840431642981854150872126659027766615908376730393
+
+# From https://rosettacode.org/wiki/Jacobi_symbol#Python
+def jacobi(a, n):
+    if n <= 0:
+        raise ValueError("'n' must be a positive integer.")
+    if n % 2 == 0:
+        raise ValueError("'n' must be odd.")
+    a %= n
+    result = 1
+    while a != 0:
+        e = 0
+        while a % 2 == 0:
+            a //= 2
+            e += 1
+        if e % 2 == 1:
+            if n % 8 in (3, 5):
+                result = -result
+        if (a % 4 == 3) and (n % 4 == 3):
+            result = -result
+        a, n = n % a, a
+    if n == 1:
+        return result
+    else:
+        return 0
+
+def int_to_bytes(x):
+    return x.to_bytes((x.bit_length() + 7) // 8 or 1, 'big')
+
+def gen_rho_ZN(N, idx):
+    attempt = 0
+    while True:
+        h = hashlib.sha256()
+        h.update(b'Z')
+        h.update(int_to_bytes(N))
+        h.update(idx.to_bytes(4, 'big'))
+        h.update(attempt.to_bytes(4, 'big'))
+        candidate = int.from_bytes(h.digest(), 'big') % N
+        if 1 < candidate < N and GCD(candidate, N) == 1:
+            return candidate
+        attempt += 1
+
+def gen_theta_J(N, idx, F_bytes):
+    attempt = 0
+    while True:
+        h = hashlib.sha256()
+        h.update(b'J')
+        h.update(int_to_bytes(N))
+        h.update(idx.to_bytes(4, 'big'))
+        h.update(F_bytes)
+        h.update(attempt.to_bytes(4, 'big'))
+        candidate = int.from_bytes(h.digest(), 'big') % N
+        if 1 < candidate < N and GCD(candidate, N) == 1 and jacobi(candidate, N) == 1:
+            return candidate
+        attempt += 1
+
+kappa = 128
+alpha = 65537
+m1 = ceil(kappa / log2(alpha))
+m2 = ceil(kappa * 32 * 0.69314718056)
+threshold = (3 * m2) // 8 
+
+server = listen(1337)
+conn = server.wait_for_connection()
+
+line = conn.recvline(timeout=30)
+if not line:
+    conn.sendline(b"FAIL")
+    conn.close()
+    exit(1)
+try:
+    F_bytes = bytes.fromhex(line.decode().strip())
+except:
+    conn.sendline(b"FAIL")
+    conn.close()
+    exit(1)
+
+sigmas = []
+for _ in range(m1):
+    line = conn.recvline(timeout=30)
+    if not line:
+        conn.sendline(b"FAIL")
+        conn.close()
+        exit(1)
+    try:
+        sigmas.append(int(line.decode().strip(), 16))
+    except:
+        conn.sendline(b"FAIL")
+        conn.close()
+        exit(1)
+
+mus = []
+for _ in range(m2):
+    line = conn.recvline(timeout=30)
+    if not line:
+        conn.sendline(b"FAIL")
+        conn.close()
+        exit(1)
+    try:
+        mus.append(int(line.decode().strip(), 16))
+    except:
+        conn.sendline(b"FAIL")
+        conn.close()
+        exit(1)
+
+for i in range(1, m1 + 1):
+    sigma_i = sigmas[i - 1]
+    if not (0 < sigma_i < N):
+        conn.sendline(b"FAIL")
+        conn.close()
+        exit(1)
+    rho_i = gen_rho_ZN(N, i)
+    if pow(sigma_i, N, N) != rho_i:
+        conn.sendline(b"FAIL")
+        conn.close()
+        exit(1)
+
+count_nonzero = 0
+for j in range(1, m2 + 1):
+    mu_j = mus[j - 1]
+    theta_j = gen_theta_J(N, m1 + j, F_bytes)
+    if mu_j != 0:
+        count_nonzero += 1
+        if not (0 < mu_j < N):
+            conn.sendline(b"FAIL")
+            conn.close()
+            exit(1)
+        if pow(mu_j, 2, N) != theta_j:
+            conn.sendline(b"FAIL")
+            conn.close()
+            exit(1)
+
+if count_nonzero < threshold:
+    conn.sendline(b"FAIL")
+    conn.close()
+    exit(1)
+
+conn.sendline(b"OK")
+conn.close()
+```
+Bài này có một bug ở dòng code sau:
+
+```python
+flip_prob = 0.5
+mus = []
+for j in range(1, m2 + 1):
+    theta_j = gen_theta_J(N, m1 + j, F_bytes)
+
+    if pow(theta_j, (p - 1) // 2, p) == 1 and pow(theta_j, (q - 1) // 2, q) == 1:
+        r_p = tonelli(theta_j % p, p)
+        r_q = tonelli(theta_j % q, q)
+        if random.random() < flip_prob:
+            r_p = -r_p % p
+        mu_j = crt_combine(r_p, p, r_q, q)
+        mus.append(mu_j)
+    else:
+        mus.append(0)
+```
+
+Nó sẽ chọn $\displaystyle r_{p} =-r_{p}\bmod p$ với xác suất là $\displaystyle \frac{1}{2}$. Như vậy ta sẽ tìm trong 2 file dump1.txt và dump2.txt để xem có 2 giá trị $\displaystyle \mu _{j}[ 1]$ và $\displaystyle \mu _{j}[ 2]$ nào khác nhau hay không.
+
+Vì cả hai đều là thặng dư bậc hai của $\displaystyle N$ nhưng khác dấu của nhau cho nên nếu ta lấy ước chung sẽ được : $\displaystyle \gcd( \mu _{j}[ 1] -\mu _{j}[ 2] ,N) =q$ và từ đó có thể tính lại $\displaystyle p$ và giải lấy flag.
+
+Code giải:
+```python
+import math
+from Crypto.Util.number import *
+N = 15259097618051614944787283201589661884102249046616617256551480013493757323043057001133186203348289474506700039004930848402024292749905563056243342761253435345816868449755336453407731146923196889610809491263200406510991293039335293922238906575279513387821338778400627499247445875657691237123480841964214842823837627909211018434713132509495011638024236950770898539782783100892213299968842119162995568246332594379413334064200048625302908007017119275389226217690052712216992320294529086400612432370014378344799040883185774674160252898485975444900325929903357977580734114234840431642981854150872126659027766615908376730393
+e = 65537
+def read_dump(filename):
+    with open(filename, 'r') as f:
+        lines = f.read().splitlines()
+    F_bytes = lines[0].strip()
+    sigmas = [int(line.strip(), 16) for line in lines[1:1+8]]  # 8 giá trị sigma đầu
+    mus = [int(line.strip(), 16) if line.strip() != '' else 0 for line in lines[1+8:1+8+2839]]  # 2839 giá trị mu
+    return F_bytes, sigmas, mus
+with open('message.txt', 'r') as f:
+    for line in f:
+        if line.startswith('c ='):
+            c = int(line.split('=')[1].strip(), 10)  
+            break
+F1, _, mus1 = read_dump('dump1.txt')
+F2, _, mus2 = read_dump('dump2.txt')
+if F1 != F2:
+    exit()
+p, q = None, None
+for j in range(len(mus1)):
+    mu1 = mus1[j]
+    mu2 = mus2[j]
+    if mu1 == 0 or mu2 == 0:
+        continue
+    if mu1 == mu2:
+        continue
+    diff = abs(mu1 - mu2)
+    q_candidate = math.gcd(diff, N)
+    if 1 < q_candidate < N:
+        q = q_candidate
+        p = N // q
+        break
+if p is None or q is None:
+    print("failed")
+    exit()
+phi = (p - 1) * (q - 1)
+d = inverse(e, phi)
+m = pow(c, d, N)
+flag = long_to_bytes(m).decode()
+print("Flag:", flag)
+```
+
+## Crypto/Shaker
+Source code của bài:
+
+```python
+import random
+import hashlib 
+
+class Shaker:
+
+    def __init__(self, state):
+        self.state = state
+        self.x = random.randbytes(64)
+        self.p = [i for i in range(64)]
+        random.shuffle(self.p)
+        
+    def permute(self):
+        self.state = [self.state[_] for _ in self.p]
+
+    def xor(self):
+        self.state = [a^b for a,b in zip(self.state, self.x)]
+
+    def shake(self):
+        self.xor()
+        self.permute()
+
+    def reset(self):
+        random.shuffle(self.p)
+        self.shake()
+        
+    def open(self):
+        self.xor()
+        return self.state
+        
+with open("flag.txt", "r") as f:
+    flag = f.read().encode()
+
+assert(len(flag) == 64)
+assert(hashlib.md5(flag).hexdigest() == "4839d730994228d53f64f0dca6488f8d")
+s = Shaker(flag)
+
+ct = 0
+MAX_SHAKES = 200
+MENU = """Choose an option:
+1. Shake the shaker
+2. See inside
+3. Exit
+> """
+
+while True:
+    choice = input(MENU)
+    if choice == '1':
+        if (ct >= MAX_SHAKES):
+            print("The shaker broke...")
+            exit(0)
+        s.shake()
+        ct += 1
+        print(f"You have shaken {ct} times.") 
+        
+    if choice == '2':
+        ret = s.open()
+        s.reset()
+        print(f"Result: {bytes(ret).hex()}")
+        
+    if choice == '3':
+        exit(0)
+```
+Trong bài này ta sẽ làm việc xoay quanh class Shaker.
+
+Khi connect tới server thì ta được lựa chọn 2 option:
+
+**Option 1**: Khi chọn option này thì server sẽ lấy state hiện tại rồi đưa vào hàm shake. Hàm này sẽ thực hiện 2 thao tác đó là XOR state với một key $\displaystyle x$ được sinh ngẫu nhiên. Sau đó sẽ lấy giá trị này truyền vào hàm permute để làm xáo trộn vị trí
+
+**Option 2**: Khi chọn option này thì server sẽ gọi hàm open. Hàm nãy sẽ thực hiện XOR state với key $\displaystyle x$ rồi trả về kết quả. Sau đó state sẽ được đưa vào hàm shake với một hoán vị $\displaystyle p$ mới.
+
+Sau một hồi suy nghĩ thì mình nhận ra tốt nhất là không nên gọi option 1 =)). Giả sử state của ta hiện tại là $\displaystyle s$ thì sau khi truyền vào hàm shake sẽ trở thành $\displaystyle p( s+x)$. Như vậy thì gần như bất khả thi để tìm lại được thông tin gì về $\displaystyle s$. 
+
+Để thuận tiện ta sẽ gọi $\displaystyle r_{0} ,s_{0}$ là response và state ban đầu của server. Lúc này thì $\displaystyle r_{0} =0$ và $\displaystyle s_{0} =flag$. 
+Ở lần gọi đầu tiên ta sẽ chọn option 2 và nhận về $\displaystyle r_{1} =s_{0} \oplus x$. Sau đó ta có $\displaystyle s_{1} =p( s_{0} \oplus x\oplus x) =p( s_{0})$. 
+
+Ta tiếp tục gọi option 2 một lần nữa thì được $\displaystyle r_{2} =p( s_{0}) \oplus x$ và chỉ cần như vậy thôi.
+
+Lúc này ta có $\displaystyle r_{1} \oplus r_{2} =p( s_{0}) \oplus s_{0} \oplus x\oplus x=p( s_{0}) \oplus s_{0}$. 
+
+Ta biết được 6 bytes của flag đó là `grey{` và `}`. Nếu như ta lấy kết quả $\displaystyle r_{1} \oplus r_{2} \oplus prefix$ và $\displaystyle r_{1} \oplus r_{2} \oplus suffix$ thì ta sẽ có khả năng biết được thêm 6 bytes khác nữa của flag vì hàm permute đã làm xáo trộn vị trí của các bytes nhưng không làm thay đổi giá trị của chúng. Mình thử làm bước này trước để xem sao. 
+
+```python
+from pwn import *
+import hashlib
+import json
+import random
+analysis = {}
+for i in range(200):
+	r = remote("challs.nusgreyhats.org", 33302)
+	tmp = r.recvline().strip().decode()
+	r.recvuntil(b"> ")
+	r.sendline(b"2")
+	c1 = bytes.fromhex(r.recvline().split()[-1].strip().decode())
+	r.recvuntil(b"> ")
+	r.sendline(b"2")
+	c2 = bytes.fromhex(r.recvline().split()[-1].strip().decode())
+	lhs = xor(c1, c2)
+	prefix = b"grey{"
+	suffix = b"}"
+	chars = [lhs[-1] ^ suffix[0]]
+	res = list(xor(lhs[:5], prefix))
+	chars += res
+	for i in chars:
+		try:
+			analysis[i] += 1
+		except:
+			analysis[i] = 1
+	r.close()
+print(analysis)
+print(len(analysis))
+characters = []
+for key in analysis:
+	characters.append(chr(key))
+	print(characters)
+characters2 = ['_', 'a', 'g', 'e', 'w', '6', '2', 'n', 'l', 'v', '4', 'r', 't', 'h', 'k', 'i', 'c', 'y', '5', '0', 'o', 'q', '3', 'u', '1', 'b', '}', 'f', '{', 'd', 'z', '7']
+assert set(characters)==set(characters2)
+```
+Mình được một charset như sau:
+```
+characters = ['_', 'a', 'g', 'e', 'w', '6', '2', 'n', 'l', 'v', '4', 'r', 't', 'h', 'k', 'i', 'c', 'y', '5', '0', 'o', 'q', '3', 'u', '1', 'b', '}', 'f', '{', 'd', 'z', '7']
+```
+Đây là các kí tự của flag.
+Bước tiếp theo là khôi phục lại flag.
+Tương tự như trên thì ta cũng sẽ lấy về 2 giá trị $\displaystyle r_{1} ,r_{2}$. 
+Ta sẽ thử khôi phục từ bytes thứ 5 vì ta đã biết 4 bytes đầu rồi. Lúc này ta để ý tới tính chất sau: 
+
+$$\begin{gather*}
+r_{1}[ 5] \oplus d=flag[ 5] \oplus x[ 5] \oplus d\\
+\Longrightarrow r_{1}[ 5] \oplus d_{1} =x[ 5]\\
+r_{2}[ 5] =p( flag)[ 5] \oplus x[ 5]\\
+\Longrightarrow r_{2}[ 5] \oplus d_{2} =x[ 5]
+\end{gather*}$$
+
+Cho nên ta sẽ cho $\displaystyle d_{i}$ chạy trong tập các kí tự cho tới khi hai giá trị trên bằng nhau. Ta sẽ thử chạy nhiều lần để xem thử kí tự $\displaystyle d$ nào xuất hiện nhiều nhất thì nó chính là kí tự tiếp theo của flag.
+
+Code giải:
+```python
+from pwn import *
+charset = ['o', 'f', '1', '}', 'e', 'a', 'g', '5', 'w', '6', 'n', '4', 'v', 'c', 't', 'u', 'k',
+           '0', '2', 'l', 'b', '_', 'q', '{', 'i', '7', 'h', '3', 'y', 'r', 'z', 'd']
+N = 25
+flag = list("grey{")
+for i in range(5, 64):
+    counter = {}
+    for _ in range(N):
+        try:
+            r = remote("challs.nusgreyhats.org", 33302)
+            r.recvline()
+            r.recvuntil(b"> ")
+            r.sendline(b"2")
+            r1 = bytes.fromhex(r.recvline().split()[-1].decode())
+            r.recvuntil(b"> ")
+            r.sendline(b"2")
+            r2 = bytes.fromhex(r.recvline().split()[-1].decode())
+            r.close()
+
+            for c1 in charset:
+                for c2 in charset:
+                    if xor(r1[i], ord(c1)) == xor(r2[i], ord(c2)):
+                        counter[c1] = counter.get(c1, 0) + 1
+        except Exception as e:
+            print(f"error at {i}: {e}")
+            continue
+    if counter:
+        best = max(counter.items(), key=lambda x: x[1])
+        print(f"[*] flag[{i}] = '{best[0]}' (freq: {best[1]})")
+        flag.append(best[0])
+    else:
+        flag.append("?")
+    print(f"[+] Flag: {''.join(flag)}\n")
+```
+Flag: `grey{kinda_long_flag_but_whatever_65k2n427c61ww064ac3vhzigae2qg}`
+
+Note: Lúc đầu mình chỉ chạy $20$ lần thì có một số kí tự bị thay đổi. Chạy $25$ lần thì chắc ăn hơn và bài cho ta MD5 Hash của flag nên ta có thể kiểm tra lại. 
+
+
+## Crypto/Not A Permutation Matrix
+
+Source code của bài:
+```python
+import random
+from base64 import b64encode, b64decode
+from functools import reduce
+
+SEED = int(0xcaffe *3* 0xc0ffee)
+
+# https://people.maths.bris.ac.uk/~matyd/GroupNames/61/Q8s5D4.html
+G = PermutationGroup([
+    [(1,2,3,4),(5,6,7,8),(9,10,11,12),(13,14,15,16),(17,18,19,20),(21,22,23,24),(25,26,27,28),(29,30,31,32)],
+    [(1,24,3,22),(2,23,4,21),(5,14,7,16),(6,13,8,15),(9,27,11,25),(10,26,12,28),(17,31,19,29),(18,30,20,32)],
+    [(1,5,12,30),(2,6,9,31),(3,7,10,32),(4,8,11,29),(13,25,19,21),(14,26,20,22),(15,27,17,23),(16,28,18,24)],
+    [(1,26),(2,27),(3,28),(4,25),(5,14),(6,15),(7,16),(8,13),(9,23),(10,24),(11,21),(12,22),(17,31),(18,32),(19,29),(20,30)]
+])
+num2e = [*G]
+e2num = {y:x for x,y in enumerate(num2e)}
+b64encode_map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321+/"
+b64decode_map = {c:i for i,c in enumerate(b64encode_map)}
+
+def gen_random_mat(seed: int, size: int):
+    random.seed(seed)
+    return matrix(size, size, random.choices([0,1], k=size*size))
+
+def mat_vec_mul(mat, vec):
+    return [reduce(lambda x,y: x*y, (a^b for a,b in zip(vec, m))) for m in mat]
+
+def hash_msg(msg: bytes):
+    emsg = b64encode(msg).decode().strip("=")
+    sz = len(emsg)
+    vec = [num2e[b64decode_map[c]] for c in emsg]
+    mat = gen_random_mat(SEED, sz)
+    for _ in range(10):
+        # Since G is non-abelian, this is a pretty good hash function!
+        vec = mat_vec_mul(mat, vec)
+    return ''.join((b64encode_map[e2num[c]] for c in vec))
+
+if __name__ == "__main__":
+    from flag import flag # secret!!
+    import re
+
+    assert re.match(r"^grey\{.+\}$", flag.decode())
+    ct = hash_msg(flag)
+    print(ct)
+
+# Program output:
+# aO3qDbHFoittWTN6MoUYw9CZiC9jdfftFGw1ipES89ugOwk2xCUzDpPdpBWtBP3yarjNOPLXjrMODD
+```
+
+Solve script:
+
+
+```python
+SEED = int(0xcaffe *3* 0xc0ffee)
+
+# https://people.maths.bris.ac.uk/~matyd/GroupNames/61/Q8s5D4.html
+G = PermutationGroup([
+    [(1,2,3,4),(5,6,7,8),(9,10,11,12),(13,14,15,16),(17,18,19,20),(21,22,23,24),(25,26,27,28),(29,30,31,32)],
+    [(1,24,3,22),(2,23,4,21),(5,14,7,16),(6,13,8,15),(9,27,11,25),(10,26,12,28),(17,31,19,29),(18,30,20,32)],
+    [(1,5,12,30),(2,6,9,31),(3,7,10,32),(4,8,11,29),(13,25,19,21),(14,26,20,22),(15,27,17,23),(16,28,18,24)],
+    [(1,26),(2,27),(3,28),(4,25),(5,14),(6,15),(7,16),(8,13),(9,23),(10,24),(11,21),(12,22),(17,31),(18,32),(19,29),(20,30)]
+])
+
+num2e = [*G]
+e2num = {y:x for x,y in enumerate(num2e)}
+b64encode_map = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321+/"
+b64decode_map = {c:i for i,c in enumerate(b64encode_map)}
+
+perm2 = set([gg^2 for gg in G])
+assert len(perm2) == 4
+
+import random
+
+def gen_random_mat(seed: int, size: int):
+    random.seed(seed)
+    return matrix(size, size, random.choices([0,1], k=size*size))
+
+ct = "aO3qDbHFoittWTN6MoUYw9CZiC9jdfftFGw1ipES89ugOwk2xCUzDpPdpBWtBP3yarjNOPLXjrMODD"
+ct = [num2e[b64decode_map[c]] for c in ct]
+l = len(ct)
+
+mat = gen_random_mat(SEED, l)
+def mat_vec_mul(mat, vec):
+    return [reduce(lambda x,y: x*y, (a^b for a,b in zip(vec, m))) for m in mat]
+
+ct_real = ct[:]
+
+def mysolveright(mat10, ct):
+    
+
+    for i in range(l - 1):
+        # print(i)
+        for j in range(i, l):
+            if int(mat10[j, i]) % 2 == 1:
+                break
+        else:
+            print("fail")
+            exit()
+        if j > i:
+            mat10[i], mat10[j] = mat10[j], mat10[i]
+            ct[i], ct[j] = ct[j], ct[i]
+
+        k = mat10[i, i]
+        mat10[i] *= k
+        # ct[i] /= k
+        ct[i] = ct[i]^k
+
+        for j in range(l):
+            if j == i:
+                continue
+            k = mat10[j, i]
+            mat10[j] -= k * mat10[i]
+            # ct[j] -= k * ct[i]
+            ct[j] = ct[j] * ct[i]^(4 - k)
+
+    return mat10, ct
+
+mat10 = Matrix(GF(2), mat)^10
+mat10, ct = mysolveright(mat10, ct)
+cands = []
+
+for i in range(64):
+    cand = ct[:]
+    for j in range(l):
+        if mat10[j, l - 1] or j == l - 1:
+            cand[j] *= num2e[i]
+
+    cands.append(cand)
+
+ct = ct_real
+
+import base64
+
+from tqdm import tqdm
+for cand in tqdm(cands):
+    '''
+    diff = [cand[i] / pt[i] for i in range(l)]
+
+    print("heh")
+    if all([(d in perm2) for d in diff]):
+        print("ooooh")
+    '''
+    vec = cand[:]
+    for _ in range(10):
+        vec = mat_vec_mul(mat, vec)
+
+    diff = [(ct[i] / vec[i]) for i in range(l)]
+    assert all(d^2 == num2e[0] for d in diff)
+
+    mat10 = Matrix(GF(2), mat)^10
+    mat10, rt = mysolveright(mat10, diff)
+
+
+    ccands = []
+
+    if rt[l - 1] != num2e[0]:
+        continue
+
+    for perm in perm2:
+        ccand = rt[:]
+        for j in range(l):
+            if mat10[j, l - 1] or j == l - 1:
+                ccand[j] *= perm
+
+        ccand = [ccand[i] * cand[i] for i in range(l)]
+
+        ccands.append(ccand)
+
+    for ans in ccands:
+        vec = ans[:]
+        for _ in range(10):
+            vec = mat_vec_mul(mat, vec)
+
+        assert (vec == ct_real)
+        # diff = [vec[i] / ct_real[i] for i in range(l)]
+        # print(diff)
+
+        ans = ''.join((b64encode_map[e2num[c]] for c in ans))
+        ans = base64.b64decode(ans + "==")
+        if ans[:4] == b"grey":
+            print(ans)
+            exit()
+```
+
+**TODO:** Implement lại các thuật toán trên ma trận

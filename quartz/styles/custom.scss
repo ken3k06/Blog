@@ -10,3 +10,14 @@ img {
  .markdown-source-view.mod-cm6 .cm-content > * {
         margin: auto auto !important;
 }
+.toc {
+  max-height: none !important;
+  height: auto !important;
+  overflow-y: visible !important;
+}
+
+.toc details {
+  max-height: 85vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}

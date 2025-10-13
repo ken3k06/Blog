@@ -1045,6 +1045,8 @@ Mọi người để ý rằng ta chỉ biết khoảng chặn của các giá t
 
 ## Knapsack Problem
 
+Bài toán knapsack là một dạng bài toán tối ưu tổ hợp 
+
 
 ## Giải các phương trình tuyến tính
 

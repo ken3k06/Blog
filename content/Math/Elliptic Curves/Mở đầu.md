@@ -1,6 +1,6 @@
-## Tài liệu
- Tài liệu chính mà mình sử dụng sẽ là cuốn [The Arithmetic of Elliptic Curves - Second Edition, Joseph H. Silverman](http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf)
-Ngoài ra có thể tham khảo thêm:
+    ## Tài liệu
+ Tài liệu chính mà mình sử dụng sẽ là cuốn [The Arithmetic of Elliptic Curves - Second Edition, Joseph H. Silverman](http://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf) 
+ Ngoài ra có thể tham khảo thêm:
 1. https://sites.google.com/site/hatrannguyenthanh/elliptic-curves-and-isogenies-seminar?fbclid=IwY2xjawNVnERleHRuA2FlbQIxMABicmlkETE4UG1ETExaeEpnbTNLbmxFAR7ODG6acQu84xBpZScPh2qE0FD23pRvDXhKLwZKvpEErHg6k5yom3WfmRXE3Q_aem_Z2kqRH6WWkt-jm1cBjWEVg
 2. 
 

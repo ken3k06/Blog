@@ -84,11 +84,36 @@ Có thể overload cả default constructor và constructor.
 
 Bây giờ ta nói về con trỏ trong OOP. Ví dụ khi lập trình OOP với python ta quen với cú pháp gọi `__init__()` khi tạo object.
 
-Trong C++ cũng cho ta một con trỏ gọi là con trỏ this. Các biến thành viên sẽ được gọi trong Private còn constructor sẽ đưa vào trong Public.
+Trong C++ cũng cho ta một con trỏ gọi là con trỏ this. Nó trỏ đến đối tượng đang thực hiện gọi hàm đó. 
+```cpp
+#include <iostream>
+using namespace std;
 
+class Student {
+    string name;
+public:
+    Student(string name) {
+        this->name = name; // "this" trỏ tới đối tượng hiện tại
+    }
+
+    void print() {
+        cout << "Name: " << this->name << endl;
+    }
+};
+
+int main() {
+    Student s1("Duc");
+    s1.print();  // this → &s1
+
+    Student s2("Trang");
+    s2.print();  // this → &s2
+}
+```
+
+
+Chú ý thêm là các biến thành viên sẽ được gọi trong Private còn constructor sẽ đưa vào trong Public.
 Nếu ta không định nghĩa constructor mặc định nhưng lại có các constructor khác, trình biên dịch sẽ báo lỗi không tìm thấy constructor mặc định nếu ta không cung cấp tham số khi tạo thể hiện.
 Trong thực tế khi thiết kế các class thì ta nên cung cấp cả hai loại constructor. 
-
 
 Ví dụ:
 

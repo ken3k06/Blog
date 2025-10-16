@@ -52,4 +52,8 @@ Theo định nghĩa thì mội tập hợp con của một hệ độc lập tuy
 Tiếp theo ta giải quyết vấn đề xác định hệ sinh cực tiểu.
 **Định lí 5.** Tập $S$ là một hệ sinh cực tiểu của $E_S$ khi và chỉ khi $S$ là độc lập tuyến tính.
 *Chứng minh.*
-Dựa vào định nghĩa thì $S$ là một hệ sinh cực tiểu của $E_S$ khi và chỉ khi $E_R \neq E_S$ với mọi tập con thực sự $R$ của $S$. Không làm mất tính tổng quát, ta chỉ xét các tập $R$ có dạng $\displaystyle R=S\backslash \{x\}$
+Dựa vào định nghĩa thì $S$ là một hệ sinh cực tiểu của $E_S$ khi và chỉ khi $E_R \neq E_S$ với mọi tập con thực sự $R$ của $S$. Không làm mất tính tổng quát, ta chỉ xét các tập $R$ có dạng $\displaystyle R=S\backslash \{x\}$ với $x$ là một vector tùy ý của $S$. Khi đó $E_R \neq E_S$ khi và chỉ khi $x \notin E_R$, có nghĩa $x$ không là một tổ hợp tuyến tính của các phần tử khác của $S$. Theo bổ đề 3 thì $S$ là một hệ độc lập tuyến tính.
+
+
+Tiếp theo: [[Tổng trực tiếp]]
+

@@ -402,3 +402,5 @@ print(key)
 ct = [ct[i*4:(i+1)*4] for i in range(len(ct)//4)]
 print(decrypt(ct,key))
 ```
+
+## Đào sâu hơn

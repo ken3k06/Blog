@@ -2,6 +2,7 @@
 title: Multiprocessing
 ---
 ## Giới thiệu
+
 ### Process vs Thread
 Process là một phiên bản của program. Process sinh ra các thread (sub-processes) để xử lí các tác vụ con. Các thread sống bên trong các process và chia sẻ cùng một không gian bộ nhớ
 Còn Thread là một bước điều hành bên trong một process. Luồng hay còn gọi là thread, là một khối các câu lệnh (instructions) độc lập trong tiến trình có thể được lập lịch bởi hệ điều hành. Hay nói một cách đơn giản, thread là các hàm hay thủ tục chạy độc lập đối với chương trình chính. Chú ý thêm là một thread có thể làm bất cứ nhiệm vụ gì một process có thể làm. 

@@ -9,4 +9,7 @@
 4/ https://www.rocq.inria.fr/secret/Anne.Canteaut/poly.pdf
 
 
+Note: Ngồi học lại món này mình ước gì lúc xưa mình học các môn đại cương cẩn thận hơn (toán rời rạc) chứ éo phải học để thi. 
+
+
 

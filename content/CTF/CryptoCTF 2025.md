@@ -614,44 +614,6 @@ for R in [ZZ, Zmod(17 * 19), GF(2 ** 8), CyclotomicField(17)]:
 ```
 
 Chỉnh lại syntax theo python là xài được oke.
-
-**Vọc vạch:**
-Ngoài hàm `groebner_basis()` trong SAGE ra thì cũng có thêm một số tool hỗ trợ tính Groebner basis. 
-Một tool mình tìm được là cái này [Fgb_sage](https://github.com/mwageringel/fgb_sage)
-Doc chi tiết tại [đây](https://fgb-sage.readthedocs.io/en/latest/#module-fgb_sage)
-Đầu tiên vào môi trường đang chạy SAGE rồi git clone cái repo ở trên về:
-![[Pasted image 20251015232002.png]]
-
-Mình chạy `sage setup.py test` thì gặp lỗi ngay =)))
-![[Pasted image 20251015232108.png]]
-
-Để fix lỗi này thì chỉnh lại trong file `setup.py` dòng 
-```python
-from sage.env import sage_include_directories, cython_aliases, UNAME
-```
-thành:
-```python
-from sage.env import sage_include_directories, cython_aliases
-import platform
-UNAME = platform.system()
-```
-
-Chạy lại thì mình gặp lỗi tiếp:
-![[Pasted image 20251015232523.png]]
-
-Dòng cuối có báo lỗi `gdlib not found`. Lý do là vì mình chưa cài `libgd` - một thư viện đồ họa của SAGE.
-Cài lại:
-```
- sudo apt-get install libgd-dev
-```
-Kiểm tra lại lần nữa:
-```
-(sage) ➜  fgb_sage git:(master) ✗ pkg-config --list-all | grep gd
-gdlib                    gd - GD graphics library
-```
-
-
-
 ## silky
 
 [**Silky’s**](https://cr.yp.toc.tf/tasks/Silky_d295907a26ba7934b8f0bac01e8f2f63a5d41b1b.txz) ‘noisy’ equations are like static on a radio—annoying, but solvable if you tune just right.

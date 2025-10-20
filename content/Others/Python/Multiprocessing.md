@@ -21,6 +21,7 @@ Trong Python khi tạo một `Process` từ `multiprocessing`, thì không đồ
 
 
 
+
 ## Tham khảo:
 [1] https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Process
 [2] https://docs.python.org/3/library/threading.html#threading.Thread

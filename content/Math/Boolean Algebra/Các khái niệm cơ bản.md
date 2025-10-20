@@ -9,18 +9,22 @@ $$
 
 $\displaystyle Supp( f)$ là tập hợp các đầu vào của hàm $\displaystyle f$ mà tại đó có giá trị bằng 1. Tức là
 $$
-
-\begin{equation*} Supp( f) =\{x:f( x) =1\} \end{equation*}
-
+\begin{equation*} 
+Supp( f) =\{x:f( x) =1\} 
+\end{equation*}
 $$ Ngược lại với $\displaystyle \text{Supp}$ thì ta có tập $\displaystyle \overline{Supp}( f) =\{x:f( x) =0\} =Supp( 1\oplus f( x))$. Số lượng các giá trị 1 trong vector chân trị của hàm $\displaystyle f$ được gọi là khoảng cách Hamming của nó và kí hiệu là $\displaystyle wt( f)$. Hiển nhiên thì $\displaystyle wt( f)$ chính là số lượng các phần tử trong tập $\displaystyle \text{Supp}( f)$. Hàm $\displaystyle f$ được gọi là cân bằng nếu như $\displaystyle wt( f) =2^{n-1}$ tức là số lượng các đầu ra bằng 1 bằng với các đầu ra bằng 0. Một hàm $\displaystyle f$ được gọi là hàm affine nếu như tồn tại các giá trị $\displaystyle a_{0} ,a_{1} ,...,a_{n} \in GF( 2)$ sao cho
 $$
-\begin{equation*} f( x) =a_{0} \oplus a_{1} x_{1} \oplus ...\oplus a_{n} x_{n} \end{equation*}
+\begin{equation*} 
+f( x) =a_{0} \oplus a_{1} x_{1} \oplus ...\oplus a_{n} x_{n} 
+\end{equation*}
 $$
 Nếu $\displaystyle a_{0} =0$ thì $\displaystyle f( x)$ là hàm tuyến tính (linear function).
 
 Tiếp theo ta kí hiệu $\displaystyle \mathcal{F}_{n}$ là tập tất cả các hàm boolean $\displaystyle n$ biến, $\displaystyle \mathcal{L}_{n}$ là tập hợp tất cả các hàm tuyến tính và $\displaystyle \mathcal{A}_{n}$ là các hàm affine. Như vậy 
 $$
-\begin{equation*} \mathcal{L}_{n} \subset \mathcal{A}_{n} \subset \mathcal{F}_{n} \end{equation*}
+\begin{equation*} 
+\mathcal{L}_{n} \subset \mathcal{A}_{n} \subset \mathcal{F}_{n} 
+\end{equation*}
 $$
 Và đây đều là các vành giao hoán (commutative rings)
 Ngoài ra ta có 
@@ -32,23 +36,31 @@ Tương tự $\displaystyle |\mathcal{A}_{n} |=2^{n+1}$ và $\displaystyle |\mat
 
 Với $\displaystyle f( x) ,g( x)$ là hai hàm boolean $\displaystyle n$ biến, ta định nghĩa khoảng cách giữa $\displaystyle f( x)$ và $\displaystyle g( x)$, kí hiệu bởi $\displaystyle d( f,g)$ là số các tọa độ khác nhau trong biểu diễn bảng chân trị giữa $\displaystyle f( x)$ và $\displaystyle g( x)$. Như vậy 
 $$
-\begin{equation*} d( f,g) =wt( f\oplus g) \end{equation*} 
+\begin{equation*} 
+d( f,g) =wt( f\oplus g) 
+\end{equation*} 
 $$
 Vì $\displaystyle a\oplus b=0$ nếu như $\displaystyle a=b$ và tương tự $\displaystyle a\oplus b=1$ nếu như $\displaystyle a\neq b$. Ngoài ra ta còn có 
 $$
-\begin{equation*} wt( f\oplus g) =wt( f) +wt( g) -2wt( fg) \end{equation*}
+\begin{equation*} 
+wt( f\oplus g) =wt( f) +wt( g) -2wt( fg) 
+\end{equation*}
 $$
 Tính phi tuyến của $\displaystyle f( x)$ kí hiệu là $\displaystyle nl( f)$, là khoảng cách nhỏ nhất giữa $\displaystyle f( x)$ và tất cả các hàm
 affine.
 $$
-\begin{equation*} nl( f) =\min\{d( f( x) ,l( x)) \ :\ l( x) \in \mathcal{A}_{n}\} \end{equation*}
+\begin{equation*} 
+nl( f) =\min\{d( f( x) ,l( x)) \ :\ l( x) \in \mathcal{A}_{n}\} 
+\end{equation*}
 $$
 
 ### Dạng chuẩn tắc đại số - ANF
 
 ANF - Algebraic normal form hay còn gọi là dạng chuẩn tắc đại số. Mỗi hàm $f$ đều có thể được biểu diễn duy nhất dưới dạng sau
 $$
-\begin{equation*} f( x) =c_{0} \bigoplus _{1\leqslant i\leqslant n} c_{i} x_{i} \bigoplus _{1\leqslant i< j\leqslant n} c_{ij} x_{i} x_{j} \bigoplus \dotsc \bigoplus c_{1,...,n} x_{1} x_{2} ...x_{n} \end{equation*}
+\begin{equation*} 
+f( x) =c_{0} \bigoplus _{1\leqslant i\leqslant n} c_{i} x_{i} \bigoplus _{1\leqslant i< j\leqslant n} c_{ij} x_{i} x_{j} \bigoplus \dotsc \bigoplus c_{1,...,n} x_{1} x_{2} ...x_{n} 
+\end{equation*}
 $$
 Trong đó $\displaystyle c_{0} ,c_{i} ,c_{ij} ,...,c_{1,...,n} \in GF( 2)$. Ví dụ: $\displaystyle f( x_{1} ,x_{2} ,x_{3}) =x_{1} \oplus x_{2} x_{3}$. Mỗi bộ $\displaystyle x_{1} ,x_{2} x_{3}$ như vậy được gọi là các multiplicative term. Số lượng các biến trong multiplicative term được gọi là bậc đại số của term đó. Và bậc đại số của hàm $\displaystyle f$ chính là bậc đại số lớn nhất của các term mà có hệ số khác 0. Trong đại số boolean thì mỗi biến độc lập $\displaystyle x_{i}$ có bậc tối đa là 1 vì $\displaystyle x_{i}^{2} =x_{i}$, bất kể giá trị của $\displaystyle x_{i}$ là gì. Như trong ví dụ trên thì bậc của $\displaystyle f$ là 2 vì bậc đại số lớn nhất trong số các term là $\displaystyle 2$, là bậc của $\displaystyle x_{2} x_{3}$. Ví dụ
 ```python
@@ -105,17 +117,22 @@ Một số tính chất
 2/ Tính trực giao: $\displaystyle \sum _{w=0}^{2^{n} -1} W( w,x) W( w,t) =\begin{cases} 2^{n} ,\ x=t\\ 0 \end{cases}$ 
 Từ tính trực giao của họ các hàm Walsh trực giao thì ta có
 $$
-  
-\begin{equation*} \sum _{w=0}^{2^{n} -1} W( w,x) =\sum _{w=0}^{2^{n} -1}( -1)^{\langle w,x\rangle } =\begin{cases} 2^{n} ,x=0 & \\ 0,x\neq 0 & \end{cases} \end{equation*}
+\begin{equation*} 
+\sum _{w=0}^{2^{n} -1} W( w,x) =\sum _{w=0}^{2^{n} -1}( -1)^{\langle w,x\rangle } =\begin{cases} 2^{n} ,x=0 & \\ 0,x\neq 0 & \end{cases} 
+\end{equation*}
 $$
 Tổng quát hơn ta có: 
 
 **Bổ đề.** 
 Cho $\displaystyle V$ là một vector thuộc không gian con của $\displaystyle GF^{n}( 2)$ và
 $$
-\begin{equation*} V^{\perp } =\{y:\forall x\in V,\ \langle x,y\rangle =0\} \end{equation*} 
+\begin{equation*}
+V^{\perp } =\{y:\forall x\in V,\ \langle x,y\rangle =0\} 
+\end{equation*} 
 $$
 là không gian vector trực giao của $\displaystyle V$. Khi đó ta có 
 $$
-\begin{equation*} \sum _{w\in V} W( w,x) =\begin{cases} |V| & ,\ w\in V^{\perp }\\ 0 & ,w\notin V^{\perp } \end{cases} \end{equation*}
+\begin{equation*}
+\sum _{w\in V} W( w,x) =\begin{cases} |V| & ,\ w\in V^{\perp }\\ 0 & ,w\notin V^{\perp } \end{cases} 
+\end{equation*}
 $$

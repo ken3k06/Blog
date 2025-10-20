@@ -267,7 +267,7 @@ Cuối cùng, đầu ra 32 bits lại được tra cứu trong bảng hoán vị
 **Tính khóa vòng**
 Một key có 64 bit nhưng chỉ có 56 bit được sử dụng để thực hiện tính toán giá trị khóa vòng. Key được chia làm 8 byte. Các bit ở vị trí 8, 16, 32, 40, 48, 56 và 64 là các bit parity được sử dụng để kiểm tra độ chính xác của key theo từng byte vì khi key được phân phối trên đường truyền đến bộ mã hóa giải mã thì có thể xảy ra lỗi.
 
-Như vậy trước khi tính khóa vòng, nó sẽ chọn bỏ đi 8 bit rồi mới bắt đầu tình.
+Như vậy trước khi tính khóa vòng, nó sẽ chọn bỏ đi 8 bit rồi mới bắt đầu tính.
 
 Quy trình tính khóa vòng như sau:
 ![[Pasted image 20251009163555.png]]
@@ -287,4 +287,11 @@ Sau khi dịch bit sau thì các bit sẽ được đánh số từ 1 tới 56 t
 Bước cuối cùng trong giá trị mã hóa là hoán vị đảo $IP^{-1}$. Đầu ra của vòng thứ 16 sẽ một lần nữa được hoán vị và lấy kết quả làm ciphertext.
 ![[Pasted image 20251009163644.png]]
 
+
+## Các mode AES
+Trên thực tế, các văn bản đầu vào thường có kích thước lớn kích thước của một block trong AES. Cho nên để thực hiện mã hóa và giải mã thì ta cần chia đầu vào thành các block khác nhau rồi xử lí chúng. 
+
+### AES - ECB
+
+### AES - GCM 
 

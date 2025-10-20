@@ -7,9 +7,11 @@ $$
 \begin{equation*} x=( x_{1} ,...,x_{n}) =\sum _{i=1}^{n} x_{i} 2^{n-i} \end{equation*} 
 $$
 
-$\displaystyle \text{Supp}( f)$ là tập hợp các đầu vào của hàm $\displaystyle f$ mà tại đó có giá trị bằng 1. Tức là
+$\displaystyle Supp( f)$ là tập hợp các đầu vào của hàm $\displaystyle f$ mà tại đó có giá trị bằng 1. Tức là
 $$
+
 \begin{equation*} Supp( f) =\{x:f( x) =1\} \end{equation*}
+
 $$ Ngược lại với $\displaystyle \text{Supp}$ thì ta có tập $\displaystyle \overline{Supp}( f) =\{x:f( x) =0\} =Supp( 1\oplus f( x))$. Số lượng các giá trị 1 trong vector chân trị của hàm $\displaystyle f$ được gọi là khoảng cách Hamming của nó và kí hiệu là $\displaystyle wt( f)$. Hiển nhiên thì $\displaystyle wt( f)$ chính là số lượng các phần tử trong tập $\displaystyle \text{Supp}( f)$. Hàm $\displaystyle f$ được gọi là cân bằng nếu như $\displaystyle wt( f) =2^{n-1}$ tức là số lượng các đầu ra bằng 1 bằng với các đầu ra bằng 0. Một hàm $\displaystyle f$ được gọi là hàm affine nếu như tồn tại các giá trị $\displaystyle a_{0} ,a_{1} ,...,a_{n} \in GF( 2)$ sao cho
 $$
 \begin{equation*} f( x) =a_{0} \oplus a_{1} x_{1} \oplus ...\oplus a_{n} x_{n} \end{equation*}

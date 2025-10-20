@@ -292,6 +292,11 @@ Bước cuối cùng trong giá trị mã hóa là hoán vị đảo $IP^{-1}$. 
 Trên thực tế, các văn bản đầu vào thường có kích thước lớn kích thước của một block trong AES. Cho nên để thực hiện mã hóa và giải mã thì ta cần chia đầu vào thành các block khác nhau rồi xử lí chúng. 
 
 ### AES - ECB
+![[Pasted image 20251020230546.png]]
+![[Pasted image 20251020230549.png]]
+Mode ECB là mode đơn giản nhất trong số các mode của AES. Mode này thực hiện chia ciphertext thành các block rồi mã hóa độc lập từng block với nhau. 
+
+
 
 ### AES - GCM 
 

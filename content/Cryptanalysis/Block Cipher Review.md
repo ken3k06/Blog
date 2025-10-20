@@ -291,12 +291,199 @@ Bước cuối cùng trong giá trị mã hóa là hoán vị đảo $IP^{-1}$. 
 ## Các mode AES
 Trên thực tế, các văn bản đầu vào thường có kích thước lớn kích thước của một block trong AES. Cho nên để thực hiện mã hóa và giải mã thì ta cần chia đầu vào thành các block khác nhau rồi xử lí chúng. 
 
-### AES - ECB
+## AES - ECB
 ![[Pasted image 20251020230546.png]]
 ![[Pasted image 20251020230549.png]]
 Mode ECB là mode đơn giản nhất trong số các mode của AES. Mode này thực hiện chia ciphertext thành các block rồi mã hóa độc lập từng block với nhau. 
 
 
 
-### AES - GCM 
+## AES - GCM
 
+Vấn đề với AES thông thường đó chính là nó không có cơ chế xác thực tin nhắn. Tức là kể cả khi ciphertext bị thay đổi thì oracle vẫn thực hiện giải mã hợp lệ. 
+
+Vì thế người ta quyết định thêm một kĩ thuật xác thực dùng khóa bí mật - MAC vào trong AES và từ đó ta có AES-GCM. GCM là viết tắt của Galois/Counter Mode và ta sẽ đi tìm hiểu từng phần của nó. 
+### MAC 
+
+Một kĩ thuật xác thực dùng khóa bí mật gọi là MAC ( Message Authentication Code). Có thể trình bày ngắn gọn kĩ thuật này như sau:
+
+$\displaystyle A$ và $\displaystyle B$ có chung một khóa bí mật $\displaystyle k$. Khi $\displaystyle A$ muốn gửi thông điệp $\displaystyle P$ cho $\displaystyle B$, $\displaystyle A$ tính toán MAC như sau: $\displaystyle MAC=C_{k}( P)$. Thông điệp cùng với MAC được gửi cho $\displaystyle B$, sau đó $\displaystyle b$ tiến hành tính toán MAC trên thông điệp nhận được tương tự như $\displaystyle A$ đã tính, sau đó so sánh với MAC nhận được từ $\displaystyle A$. 
+
+Nếu như trùng khớp thì:
+- $\displaystyle B$ tin chắc rằng thông điệp không bị sửa đổi
+- $\displaystyle B$ đảm bảo được rằng thông điệp được gửi một cách hợp pháp từ $\displaystyle A$. Vì chỉ có 2 người sỡ hữu khóa bí mật nên không ai có thể chuẩn bị một thông điệp tương tự
+
+Mã hóa đối xứng như AES cung cấp tính xác thực và được sử dụng rộng rãi nhưng không cung cấp chữ kí số vì cả $\displaystyle A$ và $\displaystyle B$ cùng dùng chung một khóa 
+
+### Counter Mode
+CTR Mode là viết tắt của Counter Mode. CTR là chế độ mã hóa sử dụng một tập các khối ngõ vào, gọi là các counter, để sinh ra một tập các giá trị ngõ ra. Sau đó, giá trị ngõ ra sẽ được XOR với plaintext để tạo ra ciphertext trong quá trình mã hóa, hoặc XOR với ciphertext để tạo ra plaintext trong quá trình giải mã.
+
+Bằng cách này CTR Mode giúp biến AES từ Block Cipher trở thành Stream Cipher. Mọi người có thể xem sơ đồ hoạt động dưới đây của CTR Mode. 
+
+Input sẽ bao gồm 2 phần đó là Nonce và một bộ đếm. Nonce là number used once hoặc là IV. Nó sẽ được tạo ra ngẫu nhiên và được sử dụng một lần duy nhất. Ngõ vào của AES Encryption sẽ là `Input(i) = Nonce || CTR(i)` . Counter sẽ nối vào sau Nonce và Input này sẽ được mã hóa bằng AES với một key $k$. Output sẽ được XOR với Plaintext và tiếp tục như vậy cho các Block khác. `CTR(i)` sẽ tăng dần khi chuyển sang các Block. 
+![[Pasted image 20251020231451.png]]
+### Galois Field
+Trước tiên ta cần hiểu trường là gì
+**Trường.** Cho $\displaystyle A$ là một trường nếu như $\displaystyle A$ là một vành giao hoán có đơn vị khác không và mọi phần tử khác không của $\displaystyle A$ đều khả nghịch đối với phép nhân, tức là $\displaystyle A$ là một thể với phép nhân giao hoán. 
+**Vành đa thức hữu hạn biến.** Cho $\displaystyle A$ là một vành giao hoán có đơn vị là $\displaystyle 1$. Khi đó với một kí hiệu $\displaystyle X$, ta gọi $\displaystyle A[ X]$ là tập các biểu thức có dạng 
+
+$$
+f(X) =a_{0} +a_{1} X+...+a_{n} X^{n}
+$$
+
+trong đó $\displaystyle a_{i} \in A$ với mọi $\displaystyle 0\leqslant i=n,n\in \mathbb{N}$. Giả sử
+
+$$
+f( X) =a_{0} +a_{1} X+...+a_{n} X^{n} ,g( X) =b_{0} +b_{1} X+...+b_{n} X^{n} \in A[ X]
+$$
+
+Không mất tính tổng quát, ta có thể giả sử $\displaystyle m\geqslant n$ và $\displaystyle m=n+s$. Khi đó
+
+$$
+g(X) =b_{0} +b_{1} X+...+b_{n} X^{n} +b_{n+1} X^{n+1} +...+b_{n+s} X^{n+s}
+$$
+
+Ta định nghĩa phép nhân và phép cộng đơn giản như sau:
+
+Phép cộng:
+
+$$
+\begin{gather*}
+f(X)+g(X) =\sum_{i=0}^{n}( a_{i} +b_{i}) X^{i} +b_{n+1} X^{n+1} +...+b_{n+s} X^{n+s}
+\end{gather*}
+$$
+
+Phép nhân:
+
+$$
+f(X)g(X) =\sum_{i=0}^{m+n}\left(\sum_{j=0}^{i} a_{i-j} b_{j}\right) X^{i}
+$$
+
+Vành $\displaystyle A[ X]$ được gọi là vành các đa thức của biến $\displaystyle X$ lấy hệ tử trong $\displaystyle A$ (hoặc vành đa thức của biến $\displaystyle X$ trên $\displaystyle A$) còn các phần tử của $\displaystyle A[ X]$ được gọi là các đa thức của biến $\displaystyle X$ lấy hệ tử trong $\displaystyle A$. Đa thức 
+
+$$
+f=a_{0} +a_{1} X+...+a_{n} X^{n}
+$$
+
+được gọi là có bậc $\displaystyle n$ và viết là $\displaystyle degf=n$. 
+
+Trong AES-GCM các phép tính toán sẽ làm việc trên một trường đặc biệt, kí hiệu là $\displaystyle \mathbb{F}_{2}$. Trường này có đặc số là 2. 
+Ta cùng đi qua một số ví dụ để hiểu rõ hơn về cách hoạt động của trường này. 
+
+Đầu tiên ta có phiên bản đơn giản nhất của nó chính là trường hữu hạn $\displaystyle GF( 2)$. Trường này bao gồm 2 phần tử là $\displaystyle{0,1}$. Phép cộng trên trường này chính là phép XOR logic.  Và tương tự phép nhân cũng chính là phép AND logic. 
+
+Hiểu đơn giản là ta lấy 2 phần tử trên trường này sau đó thực hiện phép cộng/phép nhân số học như thông thường, sau đó kết quả sẽ được lấy theo modulo 2. 
+
+![[Pasted image 20251020231604.png]]
+
+Vì AES-GCM làm việc với các khối có độ lớn là 128 bits cho nên ta cần phải thực hiện tính toán trên trường hữu hạn $\displaystyle GF\left( 2^{128}\right)$ gồm có $\displaystyle 2^{128}$ phần tử khác nhau. 
+
+Để tính toán thì ta cần định nghĩa phép nhân cùng phép cộng trên trường này. Một cách để biểu diễn đó là ta xem các phần tử trong trường $\displaystyle GF\left( 2^{128}\right)$ như là một đa thức với các hệ số trong trường $\displaystyle \mathbb{F}_{2}$.
+
+Ví dụ với $\displaystyle 1011$ ta sẽ viết lại thành $\displaystyle a( x) =x^{3} +x+1$. 
+
+Như vậy mỗi phần tử trong trường $\displaystyle GF\left( 2^{128}\right)$ sẽ được viết dưới dạng nhị phân và mỗi bit sẽ cho ta biết được thông tin là đơn thức $\displaystyle x^{i}$ có thuộc vào đa thức hay không. Trong GCM thì bit sẽ được viết theo dạng big endian, tức là bit có trọng số cao hơn thì nằm ở trước. Cụ thể, MSB của chuỗi bit sẽ biểu diễn cho $\displaystyle x^{0}$, bit tiếp theo sẽ là $\displaystyle x^{1}$ và cứ như vậy cho tới $\displaystyle x^{127}$. Một số ví dụ:
+
+- $\displaystyle 1$ sẽ tương đương với $\displaystyle 100000....$
+
+- $\displaystyle x^{4} +x$ sẽ tương đương với $\displaystyle 01001000....$
+
+Và tương tự.
+
+Tiếp theo ta sẽ định nghĩa phép nhân và cộng trên trường này. 
+
+Đối với phép cộng thì ta định nghĩa tương tự như khi làm việc trên trường $\displaystyle GF( 2)$ đó là cộng lần lượt từng đơn thức có bậc bằng nhau và sau đó XOR hệ số đứng trước chúng lại. Ví dụ ta có $\displaystyle a( x) =x^{2} +x\in GF\left( 2^{128}\right)$ và $\displaystyle b( x) =x^{4} +x^{2} +1\in GF\left( 2^{128}\right)$. Ta tính được 
+
+$$
+\begin{equation*}
+c( x) =a( x) +b( x) =x^{4} +\left( x^{2} +x^{2}\right) +x+1=x^{4} +x+1
+\end{equation*}
+$$
+
+Ta chỉ giữ lại những đơn thức nào chỉ xuất hiện tại 1 trong 2 đa thức. 
+
+Vì phép cộng được định nghĩa như trên cho nên ta có thể đảm bảo rằng $\displaystyle \deg c\leqslant 127$ và là một đa thức hợp lệ trong trường $\displaystyle GF\left( 2^{128}\right)$. Nhưng đối với phép nhân thì phức tạp hơn một chút.
+
+Chẳng hạn ta muốn thực hiện phép nhân giữa $\displaystyle a( x) =x^{126} +x$ và $\displaystyle b( x) =x^{3} +x^{2}$. Nếu ta thực hiện phép nhân như thông thường
+
+$$
+\begin{equation*}
+c( x) =a( x) b( x) =x^{129} +x^{128} +x^{4} +x^{3}
+\end{equation*}
+$$
+
+Đa thức $\displaystyle c( x)$ thu được có bậc là 129 và rõ ràng không phải là một phần tử hợp lệ trên trường $\displaystyle GF\left( 2^{128}\right)$. Để giải quyết vấn đề này thì ta cần sử dụng một đa thức gọi là đa thức bất khả quy để lấy modulo nhằm giảm bậc và đưa $\displaystyle c( x)$ về lại trường $\displaystyle GF\left( 2^{128}\right)$. Lý do ta chọn đa thức bất khả quy là để $\displaystyle \mathbb{F}_{2}[ X] /q( x)$ tạo thành một trường thương và có một đẳng cấu
+$$
+\begin{equation*}
+\mathbb{F}_{2}[ X] /q( x) \cong \mathbb{F}_{2^{128}}
+\end{equation*}
+$$
+Trong GCM thì ta sẽ sử dụng $\displaystyle q( x) =x^{128} +x^{7} +x^{2} +x+1$. Hiểu đơn giản thì việc lấy modulo một đa thức bất khả quy tương tự như khi ta lấy modulo một số nguyên tố để tạo ra trường $\mathbb{F}_p$ vậy.
+
+Còn thuật toán chia lấy dư thì hơi dài dòng quá nên mình sẽ không đề cập ở đây. 
+
+Đầy đủ hơn về phần giải thích này mọi người có thể tham khảo các tài liệu sau:
+- https://www.isec.tugraz.at/wp-content/uploads/teaching/mfc/ghash_Kales.pdf
+- https://www.lirmm.fr/arith18/papers/kobayashi-AlgorithmInversionUsingPolynomialMultiplyInstruction.pdf
+
+### Thuật toán 
+Sơ đồ thuật toán của GCM như sau:
+![[Pasted image 20251020232158.png]]
+Toàn bộ quá trình diễn ra như sau: Đối với message có $\displaystyle n$ blocks:
+
+**Bước 1.** Khởi tạo một $\displaystyle IV$ có độ dài 96 bits
+**Bước 2.** Counter block $\displaystyle J_{i}$ sau đó sẽ được tạo bằng cách lấy $\displaystyle J_{i} =IV||cnt$ và $\displaystyle cnt=( i+1)\bmod 2^{32}$ với mỗi $\displaystyle i\in \{1,...,n\}$
+**Bước 3.** Mỗi ciphertext sẽ được tính bởi $\displaystyle C_{i} =P_{i} \oplus Enc_{k}( J_{i})$ trong đó $\displaystyle Enc_{k}$ là AES-Encryptor với key là $\displaystyle k$.
+
+
+Tiếp đến là hàm GHASH. Để tính tag $\displaystyle T$ của AES-GCM thì ta cần sử dụng một hàm gọi là GHASH. Cụ thể cách hoạt động như sau:
+
+Đầu vào của GHASH cần một authenticated key $\displaystyle H$ có độ dài 128 bits. Key $\displaystyle H$ được tạo bằng cách mã hóa 16 NULL bytes bằng AES với key $\displaystyle k$. Sau đó giá trị này sẽ được chuyển thành đa thức và được sử dụng trong suốt quá trình tính toán GHASH. 
+
+Để tính, ta cần chuyển dữ liệu cần xác thực thành các khối 128 bits, và sẽ pad thêm các NULL bytes nếu như chưa đạt đủ chiều dài mong muốn. Ta sẽ làm tương tự với additional authenticated data. 
+
+Thông tin cuối cùng mà ta cần thêm vào đó là độ lớn của data. Ta sẽ thêm vào một block ở cuối chứa thông tin về độ dài của additional authenticated data và ciphertext.
+
+![[Pasted image 20251020232252.png]]
+
+Ở vòng đầu tiên ta sẽ khởi tạo một phần tử $\displaystyle Q\in GF\left( 2^{128}\right)$ và $\displaystyle Q=0$. Sau đó ta sẽ lấy giá trị này cộng với AAD. Kết quả sau đó được nhân với key $\displaystyle H$ và trở thành đầu vào cho vòng tiếp theo và cứ thế lặp lại.
+Giả sử ta cần tính cho 3 block $\displaystyle U_{0} ,U_{1} ,U_{2}$.
+Ở bước đầu tiên ta sẽ có được $\displaystyle Q\leftarrow U_{0} \times H$. Sang bước thứ hai ta sẽ có $\displaystyle Q\leftarrow ( Q+U_{1}) \times H$.
+Cứ như vậy ta sẽ được 
+
+$$
+\begin{gather*}
+Q=(((( U_{0} \times H) +U_{1}) \times H) +U_{2}) \times H\\
+\rightarrow Q=\left(\left( U_{0} \times H^{2} +U_{1} \times H\right) +U_{2}\right) \times H\\
+Q=U_{0} \times H^{3} +U_{1} \times H^{2} +U_{2} \times H
+\end{gather*}
+$$
+Tag $\displaystyle T$ sau đó sẽ được tính bởi $\displaystyle T=Q+Enc_{k}( J_{0})$.
+
+### Nonce Reuse
+Ta đã biết cách AES-GCM tạo tag $\displaystyle T$. Vậy chuyện gì sẽ xảy ra nếu như ta tạo tag cho 2 messages khác nhau mà vẫn giữ nguyên nonce. 
+
+Giả sử ta muốn tính $\displaystyle T_{1} ,T_{2}$ bằng cách sử dụng lại cùng một key và nonce. 
+
+Với messages đầu tiên ta sẽ có các block $\displaystyle U1_{0},U1_{1},U1_{2}$ và tương tự $\displaystyle U2_{0},U2_{1},U2_{2}$.
+
+Ta có 
+
+$$
+\begin{gather*}
+T1=U1_{0}\times H^{3} +U1_{1}\times H^{2} +U1_{2}\times H+S\ ( S=Enc_{k}( J_{0}))\\
+T2=U2_{0}\times H^{3} +U2_{1}\times H^{2} +U2_{2}\times H+S
+\end{gather*}
+$$
+Vì dùng chung nonce cho nên keystream $\displaystyle S$ đầu tiên là giống nhau. Như vậy ta có thể làm triệt tiêu đi giá trị này bằng cách cộng hai tag lại với nhau
+
+$$
+\begin{equation*}
+T1+T2=( U1_{0} +U2_{0}) \times H^{3} +( U1_{0} +U2_{0}) \times H^{2} +( U1_{0} +U2_{0}) \times H
+\end{equation*}
+$$
+
+Ta có thể biết được giá trị của $\displaystyle T1,T2$ cũng như $\displaystyle U1,U2$. Bây giờ nếu ta xem biểu thức trên như một đa thức theo $\displaystyle H$ thì ta có thể giải tìm nghiệm và khôi phục lại được $\displaystyle H$. Việc tìm lại $\displaystyle H$ giúp ta giả mạo được tin nhắn của người gửi bằng cách tính lại GHASH của tin nhắn đó. 
+
+Tiếp theo ta sẽ giải quyết một số challenge về AES-GCM 
+### CTF Challenges

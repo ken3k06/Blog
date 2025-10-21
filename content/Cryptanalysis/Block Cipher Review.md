@@ -460,7 +460,78 @@ Q=U_{0} \times H^{3} +U_{1} \times H^{2} +U_{2} \times H
 $$
 Tag $\displaystyle T$ sau đó sẽ được tính bởi $\displaystyle T=Q+Enc_{k}( J_{0})$.
 
+Implement cho phần trên:
+```python
+from sage.all import *
+from Crypto.Util.number import bytes_to_long, long_to_bytes
+from Crypto.Cipher import AES 
+a = GF(2)['a'].gen()
+F = GF(2**128, name = 'x' ,modulus = a**128+a**7+a**2+a+1)
+def nullpad(msg):
+    return bytes(msg) + b'\x00' *(-len(msg) % 16)
+def un_nullpad(msg):
+    return bytes(msg).strip(b'\x00')
+c = b'test'
+assert un_nullpad(nullpad(c)) == c 
+
+def bytes_to_n(b):
+    v = int.from_bytes(nullpad(b),'big')
+    return int(f"{v:0128b}"[::-1],2)
+def bytes_to_poly(b):
+    return F.from_integer(bytes_to_n(b))
+def poly_to_n(p):
+    v = p.to_integer()
+    return int(f"{v:0128b}"[::-1],2)
+def poly_to_bytes(p):
+    return poly_to_n(p).to_bytes(16,'big')
+def length_block(lad, lct):
+    return int(lad * 8).to_bytes(8, 'big') + int(lct * 8).to_bytes(8, 'big')
+
+def calculate_tag(key, ct, nonce, ad):
+    y = AES.new(key, AES.MODE_ECB).encrypt(bytes(16))
+    s = AES.new(key, AES.MODE_ECB).encrypt(nonce + b"\x00\x00\x00\x01")
+    assert len(nonce) == 12
+    y = bytes_to_poly(y)
+
+    l = length_block(len(ad), len(ct))
+
+    blocks = nullpad(ad) + nullpad(ct)
+    bl = len(blocks) // 16
+
+    blocks = [blocks[16 * i:16 * (i + 1)] for i in range(bl)]
+    blocks.append(l)
+    blocks.append(s)
+
+    tag = F(0)
+    
+    for exp, block in enumerate(blocks[::-1]):
+        tag += y**exp * bytes_to_poly(block)
+
+    tag = poly_to_bytes(tag)
+
+    return tag
+
+def check():
+    key = os.urandom(16)
+    nonce = os.urandom(12)
+
+    ad = os.urandom(os.urandom(1)[0])
+    pt = os.urandom(os.urandom(1)[0])
+    
+    cipher = AES.new(key, AES.MODE_GCM, nonce)
+    cipher.update(ad)
+    ct, tag = cipher.encrypt_and_digest(pt)
+
+    assert tag == calculate_tag(key, ct, nonce, ad)
+
+if __name__ == "__main__":
+    check()
+```
+
+Tham khảo thêm tại đây: https://frereit.de/aes_gcm/
+
 ### Nonce Reuse
+
 Ta đã biết cách AES-GCM tạo tag $\displaystyle T$. Vậy chuyện gì sẽ xảy ra nếu như ta tạo tag cho 2 messages khác nhau mà vẫn giữ nguyên nonce. 
 
 Giả sử ta muốn tính $\displaystyle T_{1} ,T_{2}$ bằng cách sử dụng lại cùng một key và nonce. 
@@ -486,4 +557,215 @@ $$
 Ta có thể biết được giá trị của $\displaystyle T1,T2$ cũng như $\displaystyle U1,U2$. Bây giờ nếu ta xem biểu thức trên như một đa thức theo $\displaystyle H$ thì ta có thể giải tìm nghiệm và khôi phục lại được $\displaystyle H$. Việc tìm lại $\displaystyle H$ giúp ta giả mạo được tin nhắn của người gửi bằng cách tính lại GHASH của tin nhắn đó. 
 
 Tiếp theo ta sẽ giải quyết một số challenge về AES-GCM 
+
+
 ### CTF Challenges
+
+#### CryptoHack Forbidden Fruit
+Source code của bài:
+```python
+from Crypto.Cipher import AES
+import os
+
+
+IV = ?
+KEY = ?
+FLAG = ?
+
+
+@chal.route('/forbidden_fruit/decrypt/<nonce>/<ciphertext>/<tag>/<associated_data>/')
+def decrypt(nonce, ciphertext, tag, associated_data):
+    ciphertext = bytes.fromhex(ciphertext)
+    tag = bytes.fromhex(tag)
+    header = bytes.fromhex(associated_data)
+    nonce = bytes.fromhex(nonce)
+
+    if header != b'CryptoHack':
+        return {"error": "Don't understand this message type"}
+
+    cipher = AES.new(KEY, AES.MODE_GCM, nonce=nonce)
+    encrypted = cipher.update(header)
+    try:
+        decrypted = cipher.decrypt_and_verify(ciphertext, tag)
+    except ValueError as e:
+        return {"error": "Invalid authentication tag"}
+
+    if b'give me the flag' in decrypted:
+        return {"plaintext": FLAG.encode().hex()}
+
+    return {"plaintext": decrypted.hex()}
+
+
+@chal.route('/forbidden_fruit/encrypt/<plaintext>/')
+def encrypt(plaintext):
+    plaintext = bytes.fromhex(plaintext)
+    header = b"CryptoHack"
+
+    cipher = AES.new(KEY, AES.MODE_GCM, nonce=IV)
+    encrypted = cipher.update(header)
+    ciphertext, tag = cipher.encrypt_and_digest(plaintext)
+
+    if b'flag' in plaintext:
+        return {
+            "error": "Invalid plaintext, not authenticating",
+            "ciphertext": ciphertext.hex(),
+        }
+
+    return {
+        "nonce": IV.hex(),
+        "ciphertext": ciphertext.hex(),
+        "tag": tag.hex(),
+        "associated_data": header.hex(),
+    }
+```
+Phân tích source code: Bài gồm 2 route là decrypt và encrypt. Hàm encrypt sẽ nhận đầu vào của ta dưới dạng hex sau đó sẽ trả về ciphertext cùng với tag và có thêm một điều kiện là trong plaintext của ta không được chứa `b'flag'`. Server sẽ trả về lại cho ta nonce, ciphertext, tag và AAD. AAD và nonce trong bài này là cố định và không thay đổi và để lấy được flag thì ta cần forge đoạn tin nhắn chứa `b'give me the flag'`. 
+
+Quá trình tính toán như sau: Đầu tiên ta có 
+
+$$
+\begin{gather*}
+T1=AH^{3} +c_{1} H^{2} +LH+S\\
+T2=AH^{3} +c_{2} H^{2} +LH+S
+\end{gather*}
+$$
+
+trong đó $\displaystyle c_{1} ,c_{2}$ là hai ciphertext.
+
+Xét 
+
+$$
+\begin{equation*}
+T_{1} -c_{1} H^{2} =T_{2} -c_{2} H^{2}
+\end{equation*}
+$$
+
+Ta muốn tính $\displaystyle T_{3}$ của bản mã $\displaystyle c_{3}$ thì ta sẽ có được 
+
+$$
+\begin{equation*}
+T_{3} -c_{3} H^{2} =T_{1} -c_{1} H^{2} =T_{2} -c_{2} H^{2} =X
+\end{equation*}
+$$
+
+Như vậy $\displaystyle T_{3} =X+c_{3} H^{2}$. Ta có được $\displaystyle X$ và $H$ như sau:
+
+$$
+\begin{equation*}
+H^{2} =\frac{T_{1} -T_{2}}{c_{1} -c_{2}}
+\end{equation*}
+$$
+
+Như vậy ta sẽ tính lại được $\displaystyle T_{3}$. Còn về phần $\displaystyle c_{3}$ ta có thể gửi lên route encrypt để lấy về. Code giải như sau: 
+```python
+from sage.all import *
+from Crypto.Util.number import bytes_to_long, long_to_bytes
+from Crypto.Cipher import AES 
+from pwn import * 
+from tqdm import tqdm 
+import requests 
+import json 
+
+context.log_level = 'debug'
+
+# helper functions
+
+a = GF(2)['a'].gen()
+F = GF(2**128, name = 'x' ,modulus = a**128+a**7+a**2+a+1)
+def nullpad(msg):
+    return bytes(msg) + b'\x00' *(-len(msg) % 16)
+def un_nullpad(msg):
+    return bytes(msg).strip(b'\x00')
+c = b'test'
+assert un_nullpad(nullpad(c)) == c 
+
+def bytes_to_n(b):
+    v = int.from_bytes(nullpad(b),'big')
+    return int(f"{v:0128b}"[::-1],2)
+def bytes_to_poly(b):
+    return F.from_integer(bytes_to_n(b))
+def poly_to_n(p):
+    v = p.to_integer()
+    return int(f"{v:0128b}"[::-1],2)
+def poly_to_bytes(p):
+    return poly_to_n(p).to_bytes(16,'big')
+def length_block(lad, lct):
+    return int(lad * 8).to_bytes(8, 'big') + int(lct * 8).to_bytes(8, 'big')
+
+def calculate_tag(key, ct, nonce, ad):
+    y = AES.new(key, AES.MODE_ECB).encrypt(bytes(16))
+    s = AES.new(key, AES.MODE_ECB).encrypt(nonce + b"\x00\x00\x00\x01")
+    assert len(nonce) == 12
+    y = bytes_to_poly(y)
+
+    l = length_block(len(ad), len(ct))
+
+    blocks = nullpad(ad) + nullpad(ct)
+    bl = len(blocks) // 16
+
+    blocks = [blocks[16 * i:16 * (i + 1)] for i in range(bl)]
+    blocks.append(l)
+    blocks.append(s)
+
+    tag = F(0)
+    
+    for exp, block in enumerate(blocks[::-1]):
+        tag += y**exp * bytes_to_poly(block)
+
+    tag = poly_to_bytes(tag)
+
+    return tag
+
+# def check():
+#     key = os.urandom(16)
+#     nonce = os.urandom(12)
+
+#     ad = os.urandom(os.urandom(1)[0])
+#     pt = os.urandom(os.urandom(1)[0])
+    
+#     cipher = AES.new(key, AES.MODE_GCM, nonce)
+#     cipher.update(ad)
+#     ct, tag = cipher.encrypt_and_digest(pt)
+
+#     assert tag == calculate_tag(key, ct, nonce, ad)
+
+# if __name__ == "__main__":
+#     check()
+
+def solve():
+    def encrypt(plaintext):
+        url = 'http://aes.cryptohack.org/forbidden_fruit/encrypt/'
+        url += plaintext.hex()
+        r = requests.get(url).json()
+        if "error" in r:
+            return None, bytes.fromhex(r["ciphertext"])
+        return bytes.fromhex(r["nonce"]), bytes.fromhex(r["ciphertext"]), bytes.fromhex(r["tag"]), bytes.fromhex(r["associated_data"])
+    def decrypt(nonce,ciphertext,tag,associated_data):
+        url = 'http://aes.cryptohack.org/forbidden_fruit/decrypt/'
+        url += nonce.hex() + '/' + ciphertext.hex() + '/' + tag + '/' + associated_data.hex()
+        r = requests.get(url).json()
+        return bytes.fromhex(r["plaintext"])
+    msg1 = b'\x00' * 16
+    msg2 = b'\x01' * 16
+    r1 = encrypt(msg1)
+    r2 = encrypt(msg2)
+    A = r1[3]
+    print(A)
+    nonce = r1[0]
+    c1, T1 = r1[1], r1[2]
+    c2, T2 = r2[1], r2[2]
+    c1 = bytes_to_poly(c1)
+    c2 = bytes_to_poly(c2)
+    T1 = bytes_to_poly(T1)
+    T2 = bytes_to_poly(T2)
+    H_2 = (T1-T2)/(c1-c2)
+    assert T1 - c1*H_2 == T2 - c2*H_2
+    X = T1 - c1*H_2
+    msg3 = b'give me the flag'
+    c3 = encrypt(msg3)[1]
+    T3 = X + bytes_to_poly(c3)*H_2 
+    print(T3)
+    tag3 = poly_to_n(T3)
+    print(decrypt(nonce, c3, hex(tag3)[2:],A).decode())
+if __name__ == "__main__":
+    solve()
+```

@@ -303,6 +303,9 @@ Mode ECB là mode đơn giản nhất trong số các mode của AES. Mode này 
 Vấn đề với AES thông thường đó chính là nó không có cơ chế xác thực tin nhắn. Tức là kể cả khi ciphertext bị thay đổi thì oracle vẫn thực hiện giải mã hợp lệ. 
 
 Vì thế người ta quyết định thêm một kĩ thuật xác thực dùng khóa bí mật - MAC vào trong AES và từ đó ta có AES-GCM. GCM là viết tắt của Galois/Counter Mode và ta sẽ đi tìm hiểu từng phần của nó. 
+Tài liệu của NIST: [AES-GCM](https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf)
+Mọi người nên tham khảo ở đây để nắm được đầy đủ cách xây dựng và implement của AES - GCM 
+Trong bài mình chỉ liệt kê sơ lại các ý chính nên có thể sẽ có nhiều chỗ hơi tắt. 
 ### MAC 
 
 Một kĩ thuật xác thực dùng khóa bí mật gọi là MAC ( Message Authentication Code). Có thể trình bày ngắn gọn kĩ thuật này như sau:
@@ -459,12 +462,22 @@ Q=U_{0} \times H^{3} +U_{1} \times H^{2} +U_{2} \times H
 \end{gather*}
 $$
 Tag $\displaystyle T$ sau đó sẽ được tính bởi $\displaystyle T=Q+Enc_{k}( J_{0})$.
+Một vài trường hợp có thể sẽ không có AAD ở đầu.
+Công thức tổng quát sẽ là như sau:
+Với $H=E_K(0^{128}), s=E_K(J_0)$ với $J_0 = nonce || 0^{31} || 1$ . Tiếp theo, tạo các block $A_1,...,A_m$ từ AAD và $C_1,C_2,...,C_n$ từ ciphertext (được nullpad) và block độ dài $L$, thì lúc này ta có 
+$$ 
+tag = S \oplus s 
+$$
+với $s$ là keystream cho block này và $S$ được tính bởi:
+$$
+S = \sum_{i=1}^{m} A_i \cdot H^{m+n+1-i} \oplus \sum^{n}_{j=1}C_j \cdot H^{n+1-j} \oplus L \cdot H
+$$
+
+
+![[Pasted image 20251021101417.png]]
 
 Implement cho phần trên:
 ```python
-from sage.all import *
-from Crypto.Util.number import bytes_to_long, long_to_bytes
-from Crypto.Cipher import AES 
 a = GF(2)['a'].gen()
 F = GF(2**128, name = 'x' ,modulus = a**128+a**7+a**2+a+1)
 def nullpad(msg):
@@ -473,6 +486,7 @@ def un_nullpad(msg):
     return bytes(msg).strip(b'\x00')
 c = b'test'
 assert un_nullpad(nullpad(c)) == c 
+
 
 def bytes_to_n(b):
     v = int.from_bytes(nullpad(b),'big')
@@ -486,30 +500,26 @@ def poly_to_bytes(p):
     return poly_to_n(p).to_bytes(16,'big')
 def length_block(lad, lct):
     return int(lad * 8).to_bytes(8, 'big') + int(lct * 8).to_bytes(8, 'big')
+def ghash(H, A, C):
+    X = F(0)
+    for i in range(0, len(A) + (-len(A) % 16), 16):
+        B = (A + b'\x00'*16)[i:i+16]
+        X = (X + bytes_to_poly(B)) * H
+    for i in range(0, len(C) + (-len(C) % 16), 16):
+        B = (C + b'\x00'*16)[i:i+16]
+        X = (X + bytes_to_poly(B)) * H
+    L = bytes_to_poly(length_block(len(A),len(C)))
+    X = (X + L) * H
+    return X
 
 def calculate_tag(key, ct, nonce, ad):
-    y = AES.new(key, AES.MODE_ECB).encrypt(bytes(16))
-    s = AES.new(key, AES.MODE_ECB).encrypt(nonce + b"\x00\x00\x00\x01")
     assert len(nonce) == 12
-    y = bytes_to_poly(y)
-
-    l = length_block(len(ad), len(ct))
-
-    blocks = nullpad(ad) + nullpad(ct)
-    bl = len(blocks) // 16
-
-    blocks = [blocks[16 * i:16 * (i + 1)] for i in range(bl)]
-    blocks.append(l)
-    blocks.append(s)
-
-    tag = F(0)
-    
-    for exp, block in enumerate(blocks[::-1]):
-        tag += y**exp * bytes_to_poly(block)
-
-    tag = poly_to_bytes(tag)
-
-    return tag
+    E = AES.new(key, AES.MODE_ECB).encrypt
+    H = bytes_to_poly(E(b'\x00'*16))
+    J0 = nonce + b'\x00\x00\x00\x01'
+    S  = ghash(H, ad, ct)
+    tag = S + bytes_to_poly(E(J0))
+    return poly_to_bytes(tag)
 
 def check():
     key = os.urandom(16)
@@ -523,10 +533,9 @@ def check():
     ct, tag = cipher.encrypt_and_digest(pt)
 
     assert tag == calculate_tag(key, ct, nonce, ad)
-
-if __name__ == "__main__":
-    check()
+    print("OK")
 ```
+
 
 Tham khảo thêm tại đây: https://frereit.de/aes_gcm/
 
@@ -769,3 +778,138 @@ def solve():
 if __name__ == "__main__":
     solve()
 ```
+### Securinets CTF 2025 - Fl1pper Zer0
+Source code của bài:
+```python
+from Crypto.Util.number import long_to_bytes, bytes_to_long, inverse
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+from fastecdsa.curve import P256 as EC
+from fastecdsa.point import Point
+import os, random, hashlib, json
+from secret import FLAG
+
+class SignService:
+    def __init__(self):
+        self.G = Point(EC.gx, EC.gy, curve=EC)
+        self.order = EC.q
+        self.p = EC.p
+        self.a = EC.a
+        self.b = EC.b
+        self.privkey = random.randrange(1, self.order - 1)
+        self.pubkey = (self.privkey * self.G)
+        self.key = os.urandom(16)
+        self.iv = os.urandom(16)
+
+    def generate_key(self):
+        self.privkey = random.randrange(1, self.order - 1)
+        self.pubkey = (self.privkey * self.G)
+
+    def ecdsa_sign(self, message, privkey):
+        z = int(hashlib.sha256(message).hexdigest(), 16)
+        k = random.randrange(1, self.order - 1)
+        r = (k*self.G).x % self.order
+        s = (inverse(k, self.order) * (z + r*privkey)) % self.order
+        return (r, s)
+
+    def ecdsa_verify(self, message, r, s, pubkey):
+        r %= self.order
+        s %= self.order
+        if s == 0 or r == 0:
+            return False
+        z = int(hashlib.sha256(message).hexdigest(), 16)
+        s_inv = inverse(s, self.order)
+        u1 = (z*s_inv) % self.order
+        u2 = (r*s_inv) % self.order
+        W = u1*self.G + u2*pubkey
+        return W.x == r
+
+    def aes_encrypt(self, plaintext):
+        cipher = AES.new(self.key, AES.MODE_GCM, nonce=self.iv)
+        ct, tag = cipher.encrypt_and_digest(plaintext)
+        return tag + ct
+
+    def aes_decrypt(self, ciphertext):
+        tag, ct = ciphertext[:16], ciphertext[16:]
+        cipher = AES.new(self.key, AES.MODE_GCM, nonce=self.iv)
+        plaintext = cipher.decrypt_and_verify(ct, tag)
+        return plaintext
+
+    def get_flag(self):
+        key = hashlib.sha256(long_to_bytes(self.privkey)).digest()[:16]
+        cipher = AES.new(key, AES.MODE_ECB)
+        encrypted_flag = cipher.encrypt(pad(FLAG.encode(), 16))
+        return encrypted_flag
+
+
+if __name__ == '__main__':
+    print("Welcome to Fl1pper Zer0 – Signing Service!\n")
+
+    S = SignService()
+
+    signkey = S.aes_encrypt(long_to_bytes(S.privkey))
+
+    print(f"Here is your encrypted signing key, use it to sign a message : {json.dumps({'pubkey': {'x': hex(S.pubkey.x), 'y': hex(S.pubkey.y)}, 'signkey': signkey.hex()})}")
+
+    while True:
+        print("\nOptions:\n \
+    1) sign <message> <signkey> : Sign a message\n \
+    2) verify <message> <signature> <pubkey> : Verify the signed message\n \
+    3) generate_key : Generate a new signing key\n \
+    4) get_flag : Get the flag\n \
+    5) quit : Quit\n")
+
+        try:
+            inp = json.loads(input('> '))
+
+            if 'option' not in inp:
+                print(json.dumps({'error': 'You must send an option'}))
+
+            elif inp['option'] == 'sign':
+                msg = bytes.fromhex(inp['msg'])
+                signkey = bytes.fromhex(inp['signkey'])
+                sk = bytes_to_long(S.aes_decrypt(signkey))
+
+                r, s = S.ecdsa_sign(msg, sk)
+                print(json.dumps({'r': hex(r), 's': hex(s)}))
+
+            elif inp['option'] == 'verify':
+                msg = bytes.fromhex(inp['msg'])
+                r = int(inp['r'], 16)
+                s = int(inp['s'], 16)
+                px = int(inp['px'], 16)
+                py = int(inp['py'], 16)
+                pub = Point(px, py, curve=EC)
+
+                verified = S.ecdsa_verify(msg, r, s, pub)
+
+                if verified:
+                    print(json.dumps({'result': 'Success'}))
+                else:
+                    print(json.dumps({'result': 'Invalid signature'}))
+
+            elif inp['option'] == 'generate_key':
+                S.generate_key()
+                signkey = S.aes_encrypt(long_to_bytes(S.privkey))
+                print("Here is your *NEW* encrypted signing key :")
+                print(json.dumps({'pubkey': {'x': hex(S.pubkey.x), 'y': hex(S.pubkey.y)}, 'signkey': signkey.hex()}))
+
+            elif inp['option'] == 'get_flag':
+                encrypted_flag = S.get_flag()
+                print(json.dumps({'flag': encrypted_flag.hex()}))
+
+            elif inp['option'] == 'quit':
+                print("Adios :)")
+                break
+
+            else:
+                print(json.dumps({'error': 'Invalid option'}))
+
+        except Exception:
+            print(json.dumps({'error': 'Oops! Something went wrong'}))
+            break
+```
+Phân tích source code: 
+
+
+

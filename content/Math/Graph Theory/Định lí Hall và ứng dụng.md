@@ -1,0 +1,2 @@
+## Định lí Hall
+Cho đồ thị lưỡng phân $G$ với các tập đỉnh $X,Y$ và tập cạnh là $E$. Tập $M \subset E$ được gọi là một ghép cặp hoàn hảo của tập đỉnh $X$ nếu mỗi đỉnh $u \in X$ tồn tại duy nhất $v \in Y$ sao cho cạnh $uv \in M$. 

@@ -295,7 +295,7 @@ Trên thực tế, các văn bản đầu vào thường có kích thước lớ
 ![[Pasted image 20251020230546.png]]
 ![[Pasted image 20251020230549.png]]
 Mode ECB là mode đơn giản nhất trong số các mode của AES. Mode này thực hiện chia ciphertext thành các block rồi mã hóa độc lập từng block với nhau. 
-
+Điều này nảy sinh một vấn đề đó chính là: Các khối dữ liệu giống nhau thì kết quả mã hóa cũng sẽ tương tự nhau. 
 
 
 ## AES - GCM
@@ -778,7 +778,7 @@ def solve():
 if __name__ == "__main__":
     solve()
 ```
-### Securinets CTF 2025 - Fl1pper Zer0
+#### Securinets CTF 2025 - Fl1pper Zer0
 Source code của bài:
 ```python
 from Crypto.Util.number import long_to_bytes, bytes_to_long, inverse

@@ -113,7 +113,13 @@ Trong Python, properties được chia làm 2 loại:
 - Instance Variables
 
 
-## Python built-in functions
+
+
+
+
+
+
+## Bonus: Python built-in functions
 
 Trình thông dịch của Python có cung cấp sẵn cho ta một số hàm và kiểu dữ liệu đi kèm với hàm đó và có thể được sử dụng trực tiếp ở bất kì đâu trong chương trình mà không cần import thêm thư viện. 
 Ở đây mình sẽ nhắc lại một số hàm và chức năng của chúng nhằm mục đích tra cứu

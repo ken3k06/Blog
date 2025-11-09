@@ -1,4 +1,5 @@
 
+
 Để học một ngôn ngữ lập trình mới, theo mình ta cần bắt đầu từ 3 vấn đề cơ bản nhất: Một là biến và kiểu dữ liệu, hai là các câu lệnh điều kiện, rẽ nhánh và ba là quy tắc khai báo và gọi hàm.
 
 Chạy thử code rust trên đây: [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2024)
@@ -410,6 +411,10 @@ Nhiều ngôn ngữ lập trình không yêu cầu ta phải hiểu rõ về sta
 ![[Pasted image 20251030205709.png]]
 
 
+Lưu trữ dữ liệu trên stack nhanh hơn trên heap do trình cấp phát không bao giơ fphari tìm kiếm nơi lưu trữ dữ liệu mới, vì nó luôn ở trên đỉnh của stack. Với heap sẽ đòi hỏi nhiều công việc hơn khi phải tìm một không gian bộ nhớ trống đủ lớn để chứa dữ liệu. Cùng với đó, việc lấy dữ liệu ra trên stack sẽ đơn giản hơn so với việc phải thông qua con trỏ để truy cập được tới giá trị được lưu trên Heap . 
+
+
+
 ### Ownership
 
 Ownership là một khái niệm hoàn toàn mới trong Rust, có chức năng đảm bảo tính an toàn, tối ưu cho bộ nhớ mà không cần đến garbage collector như trong Python hoặc một số ngôn ngữ khác như C/C++ yêu cầu người dùng phải tự giải phóng bộ nhớ bằng tay.
@@ -516,6 +521,36 @@ warning: variable does not need to be mutable
   |
   = note: `#[warn(unused_mut)]` on by default
 ```
+
+Nếu như muốn copy sâu dữ liệu trên heap thì ta sẽ dùng cú pháp `.clone()` 
+```rust 
+fn main(){
+let s1 = String::from("Hello"); 
+let s2 = s1.clone(); 
+}
+```
+
+
+### References và Borrowing 
+
+References có nghĩa là tham chiếu. Ở trong các ví dụ trên ta biết rằng mình không thể gọi trực tiếp `s2 = s1;` vì mỗi giá trị chỉ có duy nhất một chủ sỡ hữu. 
+
+Do đó thay vì sao chép thì ta sẽ mượn giá trị bằng cú pháp `&`. 
+
+Ta có một ví dụ như dưới đây: 
+
+```rust
+fn main() {
+    let s1 = String::from("hello");
+    let len = calculate_length(&s1);
+    println!("The length of '{}' is {}.", s1, len);
+}
+fn calculate_length(s: &String) -> usize {
+    s.len()
+}
+```
+
+Ở hàm `calculate_length()` thì 
 
 ## Control Flow
 
@@ -819,12 +854,19 @@ Có một số thư viện mà ta cần nắm rõ:
 
 - [Base64](https://docs.rs/base64/latest/base64/)
 - [Hex](https://docs.rs/hex/0.4.3/hex/)
-
+Note một số cú pháp
 ### Bytes and Big Integers
 
 - [Num BigInt](https://docs.rs/num-bigint/latest/num_bigint/)
 - [Num Traits](https://docs.rs/num-traits/latest/num_traits/)
+Note một số cú pháp:
 
+
+### Encoding Challenge
+
+Những thư viện sử dụng trong bài này: 
+- https://serde.rs/derive.html
+- 
 
 
 ## Resources 

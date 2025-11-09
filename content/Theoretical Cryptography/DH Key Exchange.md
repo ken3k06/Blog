@@ -102,7 +102,7 @@ Phiên bản trên là phiên bản Hybrid Encryption cho Elgamal Scheme. Điể
 
 Một nhóm đại số $\mathbb{G}$ với cấp là số nguyên tố $q$ và điểm sinh $g\in \mathbb{G}$
 - Key generation algorithm:
-    - $G:()= \alpha \xleftarrow{R} \mathbb{Z}_q, h = g^\alpha \newline pk \leftarrow h, sk \leftarrow \alpha \newline \text{output}(h,g)$ là public parameters
+    - $G:()= \alpha \xleftarrow{R} \mathbb{Z}_q, h = g^\alpha ,\newline pk \leftarrow h, sk \leftarrow \alpha \newline \text{output}(h,g)$ là public parameters
 - với mỗi public key $pk$ và tin nhắn $m \in \mathbb{G}$ thuật mã hóa hoạt động như sau
     - $k \xleftarrow{R} \mathbb{Z}_{q}$, tính $c_1 = g^k, c_2 = m\cdot h^k = m \cdot g^{\alpha k} \newline \text{output}(c_1,c_2)$
 - Để giải mã đầu tiên ta sẽ kiểm tra $c_1,c_2\in \mathbb{G}$ và sau đó sẽ tính $m=c_2\times c_1^{-\alpha} = m \times g^{\alpha k} \times g^{-k \alpha} = m$.

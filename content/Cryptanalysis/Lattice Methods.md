@@ -1798,9 +1798,9 @@ $$
 
 Ý tưởng cơ bản của bài toán là như trên. Nhưng ta cần một định nghĩa chính xác hơn cho nó như sau 
 
-**Bài toán học với lỗi.** Cho $\displaystyle n,m,q$ là các số nguyên và $\displaystyle \chi$ là phân bố trên $\displaystyle \mathbb{Z}$. Với $\displaystyle s\leftarrow _{\chi }\mathbb{Z}^{n}_q$ có các phần tử được chọn theo phân bố $\chi$,  định nghĩa $\displaystyle \mathcal{D}_{s,\chi }$ là phân bố lấy các mẫu $\displaystyle a\leftarrow _{\$}\mathbb{Z}_{q}^{n}$ và $\displaystyle e\leftarrow _{\chi }\mathbb{Z}$ rồi trả về $\displaystyle a,\langle a,s\rangle +e\in \mathbb{Z}_{q}^{n} \times \mathbb{Z}_{q}$. 
+**Bài toán học với lỗi.** Cho $\displaystyle n,m,q$ là các số nguyên và $\displaystyle \chi$ là phân bố trên $\displaystyle \mathbb{Z}$. Với $\displaystyle s\leftarrow _{\chi }\mathbb{Z}^{n}_q$ có các phần tử được chọn theo phân bố $\chi$,  định nghĩa $\displaystyle \mathcal{D}_{s,\chi }$ là phân bố lấy các mẫu $\displaystyle a\leftarrow\mathbb{Z}_{q}^{n}$ và $\displaystyle e\leftarrow _{\chi }\mathbb{Z}$ rồi trả về $\displaystyle a,\langle a,s\rangle +e\in \mathbb{Z}_{q}^{n} \times \mathbb{Z}_{q}$. 
 -  Với $\displaystyle n,q\geqslant 2$ và $\displaystyle m$ mẫu độc lập từ phân bố $\displaystyle \mathcal{D}_{s,\chi }$, bài toán search LWE là bài toán tìm $\displaystyle s$.
-- Với $\displaystyle n,q\geqslant 2$ và $\displaystyle m$ mẫu độc lập $\displaystyle ( a_{i} ,b_{i})$, bài toán LWE quyết định (decisional LWE problem) là bài toán phân biệt với $\displaystyle i=1,2,...,m$ thì $\displaystyle ( a_{i} ,b_{i})\leftarrow _{\$}\left(\mathbb{Z}_{q}^{n} \times Z_{q}\right)$ hay $\displaystyle ( a_{i} ,b_{i})\leftarrow \mathcal{D}_{s,\chi }$.
+- Với $\displaystyle n,q\geqslant 2$ và $\displaystyle m$ mẫu độc lập $\displaystyle ( a_{i} ,b_{i})$, bài toán LWE quyết định (decisional LWE problem) là bài toán phân biệt với $\displaystyle i=1,2,...,m$ thì $\displaystyle ( a_{i} ,b_{i})\leftarrow \left(\mathbb{Z}_{q}^{n} \times Z_{q}\right)$ hay $\displaystyle ( a_{i} ,b_{i})\leftarrow \mathcal{D}_{s,\chi }$.
 Trong đó phân phối của lỗi (errors $e$) thường là phân phối Gauss (gaussian distribution) hoặc phân phối đều (uniform sampling).
 ### Private Key Encryption from LWE 
 

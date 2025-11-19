@@ -4,6 +4,8 @@ Nội dung chính mà bài viết sẽ xoay quanh:
 - CryptoPP, NTL, GMP, primesieve - các thư viện số học, crypto trong C++
 - Ngôn ngữ lập trình C++
 - Math/Crypto
+Doc cho thư viện CryptoPP: 
+
 
 Note: Chỉnh lại file task.json một chút để làm việc với CryptoPP. Ngoài ra mình có cài sẵn `gmp` và `ntl` để làm các bài tập sau này: 
 
@@ -130,6 +132,19 @@ Có một vấn đề khá thú vị trong CryptoPP đó là Pipeline API.
 Về phần này mọi người có thể tham khảo ở đây:
 - http://marko-editor.com/articles/cryptopp_sign_string/
 - https://www.cryptopp.com/wiki/Pipelining
+
+### Pipelining
+
+Pipelining của CryptoPP được thiết kế dựa trên Unix pipe system. Để hiểu hơn về nó thì trước tiên ta cần tìm hiểu xem Unix pipe system hoạt động như thế nào. 
+Pipe có thể hiểu là một kênh truyền dữ liệu giữa các tiến trình với nhau, dữ liệu xuất (stdout) của tiến trình này được chuyển đến làm dữ liệu nhập (stdin) của tiến trình kia. 
+
+
+![[Pasted image 20251114121831.png]]
+
+
+
+
+
 
 ## Base64
 Dùng `cryptopp/base64.h`

@@ -2,7 +2,6 @@
 title: Isogenies
 ---
 
-
 # Isognies
 
 (Warning: This is just a brief note, so it may have some errors. )
@@ -821,6 +820,8 @@ ct = "755b72b2e3bef2e7a4b2ce4a370f287ad04c1359bace25f3def8be23c0c49e89b4302408ad
 print(decrypt_flag(s_, iv, ct))
 ```
 ### Breaking SIDH
+
+
 
 ## Resources 
 

@@ -64,7 +64,19 @@ $$
 
 
 
-![[Pasted image 20251031201746.png]]
+Ý nghĩa của hai tính chất này đó là: Nếu như người chứng minh Prover là trung thực, tức là Prover sỡ hữu witness (bí mật) thật sự và statement là đúng thì sẽ được Verfier chấp nhận với xác suất cao. Còn ngược lại (soundess), nếu như statement là sai hoặc Prover $P$ cố ý gian lận thì xác suất để $V$ chấp nhận là rất thấp. 
+
+Hơn nữa, trong quá trình chứng minh thì $V$ không học thêm được gì về witness hoặc bất cứ thông tin bí mật nào khác. Chẳng hạn statement của ta là "Tồn tại một giá trị $w$ sao cho $y=g^w$" và ta muốn chứng minh cho $V$ biết rằng mình đang sỡ hữu giá trị $w$ này.
+
+
+
+
+
+
+
+## Thực hành - CryptoHack 
+
+
 
 
 ## Tài liệu

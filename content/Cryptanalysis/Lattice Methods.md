@@ -368,7 +368,8 @@ span\{\mathbf{v}_{1} ,..,\mathbf{v}_{k}\} =span\{\mathbf{u}_{1} ,...,\mathbf{u}_
 $$
 Để xây dựng một hệ trực chuẩn thì trước hết ta sẽ xây dựng một hệ trực giao rồi lấy từng vector chia cho chuẩn của chính nó. 
 
-![image](https://hackmd.io/_uploads/HyBAd-OBgl.png)
+![[Pasted image 20251118201046.png]]
+
 
 
 ```python
@@ -398,7 +399,7 @@ Thuật toán rút gọn lưới đầu tiên là LLL. Mục tiêu của thuật
 1. $\displaystyle  | \mu _{i,j} | \leqslant \frac{1}{2}$ với mọi $\displaystyle 1\leqslant j< i$.
 2. $\displaystyle \left( \delta -\mu _{i+1,i}^{2}\right) \| \mathbf{b}_{i}^{*} \| ^{2} \leqslant \| \mathbf{b}_{i+1}^{*} \| ^{2} ,\forall 1\leqslant i\leqslant n-1$.
 
-![image](https://hackmd.io/_uploads/BJDypWuHle.png)
+![[Pasted image 20251118201101.png]]
 
 Phân tích: Thuật toán bắt đầu bằng việc tìm một cơ sở trực giao từ một cơ sở cho trước. Trong quá trình trực giao hóa Gram-Schmidt, sẽ có một số hệ số Gram-Schmidt thỏa mãn:
 $$
@@ -419,7 +420,7 @@ Mọi người có thể xem implement của key-moon tại đây https://github
 
 Tool được build bằng cmake nên cần cài thêm như sau
 
-![image](https://hackmd.io/_uploads/Hykz4G_rxl.png)
+![[Pasted image 20251118201134.png]]
 
 ```bash
 sudo apt update
@@ -434,7 +435,7 @@ cd build
 cmake ..
 ```
 Mình gặp một cái lỗi như này 
-![image](https://hackmd.io/_uploads/B1uSNfuBxe.png)
+![[Pasted image 20251118201142.png]]
 
 Lỗi này là do ta chưa cài Eigen, một dependency cần có để build `flatter`.
 
@@ -896,6 +897,10 @@ def SDA(x, rho):
 
 ### Multivariate polynomial approach (MP)
 
+## Bài toán SVP 
+
+Bài toán SVP - Shortest Vector Problem là bài toán tìm vector ngắn nhất trong lưới. 
+
 ## Hidden Number Problem - HNP
 Có hai phiên bản khác nhau của HNP, ở đây mình sẽ trình bày lại phiên bản quen thuộc hơn. Phiên bản còn lại mọi người có thể xem ở [đây](https://link.springer.com/chapter/10.1007/3-540-68697-5_11)
 
@@ -1179,6 +1184,7 @@ Như vậy ta đã tìm được một nghiệm cho phương trình đó là $(x
 Tiếp tục ta sẽ tìm hiểu một số phiên bản khác của bài toán giải phương trình/hệ phương trình tuyến tính
 
 ### Phương trình đồng dư tuyến tính
+
 
 ## CTF Challenges
 
@@ -1781,6 +1787,721 @@ print(long_to_bytes(int(m)))
 # b'ictf{my_d0u813D_RSA_D!D_n07_Cook}
 ```
 
+
+## Hệ mật LWE
+
+Trước tiên ta nhắc lại bài toán học với lỗi - Learning With Errrors problem. Bài toán học với lỗi là bài toán yêu cầu ta khôi phục lại một giá trị bí mật $\displaystyle s\in \mathbb{Z}_{q}^{n}$ bằng việc cho biết một dãy các phương trình tuyến tính xấp xỉ theo $\displaystyle s$. Chẳng hạn 
+
+$$
+\begin{gather*} 14s_{1} +15s_{2} +5s_{3} +2s_{4} \approx 8\ (\bmod 17)\\ 13s_{1} +14s_{2} +14s_{3} +6s_{4} \approx 16\ (\bmod 17)\\ 6s_{1} +10s_{2} +13s_{3} +1s_{4} \approx 3\ (\bmod 17)\\ \vdots \\ 6s_{1} +7s_{2} +16s_{3} +2s_{4} \approx 3(\bmod 17) \end{gather*}
+$$
+
+Ý tưởng cơ bản của bài toán là như trên. Nhưng ta cần một định nghĩa chính xác hơn cho nó như sau 
+
+**Bài toán học với lỗi.** Cho $\displaystyle n,m,q$ là các số nguyên và $\displaystyle \chi$ là phân bố trên $\displaystyle \mathbb{Z}$. Với $\displaystyle s\leftarrow _{\chi }\mathbb{Z}^{n}_q$ có các phần tử được chọn theo phân bố $\chi$,  định nghĩa $\displaystyle \mathcal{D}_{s,\chi }$ là phân bố lấy các mẫu $\displaystyle a\leftarrow _{\$}\mathbb{Z}_{q}^{n}$ và $\displaystyle e\leftarrow _{\chi }\mathbb{Z}$ rồi trả về $\displaystyle a,\langle a,s\rangle +e\in \mathbb{Z}_{q}^{n} \times \mathbb{Z}_{q}$. 
+-  Với $\displaystyle n,q\geqslant 2$ và $\displaystyle m$ mẫu độc lập từ phân bố $\displaystyle \mathcal{D}_{s,\chi }$, bài toán search LWE là bài toán tìm $\displaystyle s$.
+- Với $\displaystyle n,q\geqslant 2$ và $\displaystyle m$ mẫu độc lập $\displaystyle ( a_{i} ,b_{i})$, bài toán LWE quyết định (decisional LWE problem) là bài toán phân biệt với $\displaystyle i=1,2,...,m$ thì $\displaystyle ( a_{i} ,b_{i})\leftarrow _{\$}\left(\mathbb{Z}_{q}^{n} \times Z_{q}\right)$ hay $\displaystyle ( a_{i} ,b_{i})\leftarrow \mathcal{D}_{s,\chi }$.
+Trong đó phân phối của lỗi (errors $e$) thường là phân phối Gauss (gaussian distribution) hoặc phân phối đều (uniform sampling).
+### Private Key Encryption from LWE 
+
+Từ ý tưởng trên ta có thể xây dựng một hệ mật như sau: 
+Một hệ mật khóa bí mật (private-key encryption) sẽ bao gồm 3 thuật toán chính. Đầu tiên là một thuật toán sinh khóa ngẫu nhiên $Gen$ với đầu vào là security parameter $\lambda$  và sinh ra một khóa bí mật $sk$. Tiếp theo là thuật toán mã hóa $Enc$ với đầu vào là cặp bản rõ - khóa bí mật $(m,sk)$ và output ra ciphertext $c$. Cuối cùng là thuật toán giải mã $Dec$ với đầu vào là $(c,sk)$ và output ra bản rõ ban đầu. 
+Cả 3 phải đảm bảo tính chất correctness tức là với mỗi key $sk$ được sinh ra bởi $Gen$ thì 
+$$
+Dec(sk,Enc(sk,m)) = m
+$$
+Thuật toán diễn ra như sau: 
+- KeyGen $Gen(1^\lambda)$: Tính $n=n(\lambda),q=q(\lambda), \chi = \chi(\lambda)$ và khóa bí mật sẽ là 
+$$
+sk = s \leftarrow \mathbb{Z}_q^n
+$$
+là một vector có độ dài là $n$ trên $\mathbb{Z}_q$.
+- Encryption $Enc(sk,m)$: Message space của ta sẽ là $\mathcal{M}=\{0,1\}$. Mỗi messages sẽ được chuyển về dạng bit và mã hóa từng bit. Ciphertext cho message $m$ sẽ là 
+$$
+c=(a,b)=(a,s^Ta+e+m\lfloor q/2 \rceil \bmod q )
+$$
+trong đó $a \leftarrow \mathbb{Z}_q^n$ và $e \leftarrow \chi$ 
+- Decryption $Dec(sk,c=(a,b))$: Output 0 nếu như
+$$
+\lvert b - s^Ta \bmod q \rvert < q/4 
+$$
+ngược lại output 1.
+
+### Dual lattice Attack
+Nhắc lại:  Mỗi lưới $\displaystyle \mathcal{L}$ có một lưới đối ngẫu (dual lattice), kí hiệu $\displaystyle \mathcal{L}^{*} =\left\{\mathbf{w} \in \mathbb{R}^{m} \ \middle| \ \langle \mathbf{w} ,\mathbf{x} \rangle \in \mathbb{Z} ,\ \forall \mathbf{x} \in \mathcal{L}\right\}$.
+Nói cách khác, một lưới đối ngẫu của lưới $\mathcal{L}$ là tập hợp các điểm trong không gian sinh bởi $\mathcal{L}$ sao cho tích trong của nó với bất kì điểm nào trong $\mathcal{L}$ cũng là một số nguyên. 
+Trên thực tế, ta sẽ tìm cách khôi phục lại giá trị bí mật $s \in \mathbb{Z}_q^n$ từ nhiều cặp giá trị $(a_i,b_i)$. Trong đó 
+$$
+\begin{array}{l}
+a_i \in \mathbb{Z}_q^n \\ 
+b_i \in \mathbb{Z}_q 
+\\
+s\in \mathbb{Z}_q^n
+\end{array}
+$$
+Các bộ số này sẽ được gom thành một ma trận và viết lại dưới dạng hệ phương trình tuyến tính $As+e=b$ trên modulo $q$, trong đó $A$ có các hàng là các vector $a_i$, $b$ là một vector cột mà mỗi entry là các giá trị $b_i$. Tương tự với $e$. 
+
+Xét một dual lattice được scaled bởi $q$ như sau: 
+
+$$
+q\Lambda^*=\{x \in \mathbb{Z}^m \ \mid \ x \cdot A \equiv 0 \bmod q\}
+$$
+Bài toán giải tìm một vector ngắn trong $q\Lambda^*$ tương đương với giải bài toán SIS (Shortest Integer Solution) trong lattice $A$. 
+Bài toán SIS là bài toán được phát biểu như sau: 
+**SIS.** Cho $q \in \mathbb{Z}$ và ma trận $A$.  Với $t<q$, tìm một vector $y$ thỏa mãn $0< \lVert y \rVert \leq t$ sao cho 
+$$
+y \cdot A \equiv 0 (\bmod q)
+$$
+
+### Primal Lattice Attack (uSVP)
+uSVP là bài toán tìm vector nhỏ nhất và duy nhất trong lưới. 
+Ta sẽ dựa vào ý tưởng của bài toán này để phá hệ mật LWE. 
+Đầu tiên ta phát biểu lại bài toán: Với $A,c$ thỏa mãn $c = A \cdot s +e$, ta biết rằng có một vector $w$ sao cho $A \cdot w -c \bmod q$ là nhỏ. 
+Nói cách khác ta xác định được rằng có một vector ngắn (target vector) trong mạng được sinh ra bởi q-ary lattice sau: 
+$$
+\displaystyle B=\begin{pmatrix} A^{T} & 0\\ c^{T} & t \end{pmatrix} \in \mathbb{Z}_{q}^{( n+1) \times ( m+1)}
+$$
+
+Giả sử error vector của ta đủ nhỏ thì ta có thể thử tìm lại nó bằng cách xét tổ hợp tuyến tính $\displaystyle ( s|-1) B=( e|-t) \ \bmod q$
+Bây giờ ta sẽ đi cụ thể vào cách xây dựng lattice để giải bài toán trên.
+
+Ta đưa ma trận $\displaystyle A^{T}$ về dạng bậc thang rút gọn $\displaystyle [ I_{n\times n} |A']$ với $\displaystyle A^{T} \in \mathbb{Z}_{q}^{n\times m}$ và $\displaystyle m >n$. 
+
+Sau đó xây dựng một ma trận khối như sau: 
+
+$$
+\begin{equation*}
+B=\begin{pmatrix}
+I_{n\times n} & A' & 0\\
+0_{( m-n) \times n} & qI_{( m-n) \times ( m-n)} & 0\\
+c^{t} &  & t
+\end{pmatrix} \in \mathbb{Z}^{( m+1) \times ( m+1)}
+\end{equation*}
+$$
+
+Implement: 
+```python
+from sage.all import * 
+import random 
+q = 37
+assert is_prime(q)
+F = GF(q)
+n = 5
+m = n**2
+A = Matrix(GF(q),m,n,lambda i,j: randint(0,q-1))
+e = vector((0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0),GF(q))
+V = VectorSpace(GF(q),n)
+S = V.random_element()
+print(f"secret key={S}")
+b = (A*S) + e
+def flatter(M):
+    import re
+    from subprocess import check_output
+    # compile https://github.com/keeganryan/flatter and put it in $PATH
+    z = "[[" + "]\n[".join(" ".join(map(str, row)) for row in M) + "]]"
+    ret = check_output(["flatter"], input=z.encode())
+    return matrix(M.nrows(), M.ncols(), list(map(int, re.findall(b"-?\\d+", ret))))
+def primal_attack(A,b,fll = False):
+    m = A.nrows()
+    n = A.ncols()
+    A_ = matrix(ZZ, A.T.rref().submatrix(0,n,n,m-n))
+    b_zz = [int(x) for x in b]
+    I_n = identity_matrix(ZZ,n)
+    qAry = q*identity_matrix(ZZ,m-n)
+    zero_mn_n = zero_matrix(ZZ, m-n, n)    
+    zero_n_1  = zero_matrix(ZZ, n, 1)  
+    zero_mn_1 = zero_matrix(ZZ, m-n, 1)    
+    c1 = matrix(ZZ, 1, n,    b_zz[:n])    
+    c2 = matrix(ZZ, 1, m-n,  b_zz[n:]) 
+    t  = matrix(ZZ, 1, 1, [1])
+    B = block_matrix([
+    [I_n,        A_,   zero_n_1],
+    [zero_mn_n,  qAry,   zero_mn_1],
+    [c1,c2,t]
+])
+    if fll == True:
+        L = flatter(B)
+    else:
+        L = B.LLL()
+    return L 
+L = primal_attack(A,b, fll = True)
+print(L[0][:-1] == e)
+S_ = A.solve_right(b-e)
+print(f"recover secret key = {S_}")
+```
+
+### Thực hành 
+
+#### LWE High Bits Message
+Source code của bài
+```python
+# dimension
+n = 64
+# plaintext modulus
+p = 257
+# ciphertext modulus
+q = 0x10001
+# bound for error term
+error_bound = int(floor((q/p)/2))
+# message scaling factor
+delta = int(round(q/p))
+
+
+V = VectorSpace(GF(q), n)
+S = V.random_element()
+print("S = ", S, "\n")
+
+m = ?
+
+A = V.random_element()
+error = randint(-error_bound, error_bound)
+b = A * S + m * delta + error
+
+print("A = ", A)
+print("b = ", b)
+```
+File output.txt mọi người có thể lên trên trang của CryptoHack để theo dõi. 
+
+Phân tích bài: Đầu tiên, hệ mật dựa trên LWE mà ta vừa trình bày sẽ thực hiện mã hóa trên từng bit $0$ hoặc $1$ của plaintext còn đối với bài trên thì nó sẽ thực hiện mã khóa trên không gian plaintext lớn hơn. 
+Thuật toán đầy đủ của nó sẽ trông như sau: 
+![[Pasted image 20251118204420.png]]
+Trong đó $\Delta = \lfloor (q/p) \rceil$.
+Mình sẽ giải thích lại thuật toán trên như sau:
+- Các tham số cho trước: 
+	- Một không gian vector có kích thước là $n$
+	- Ciphertext modulo $q$
+	- Plaintext modulo $p$ , đồng nghĩa với việc ta chỉ có thể mã hóa các message có kích thước nhỏ hơn $p$ 
+	- Scaling factor $\Delta = round(q/p)$
+- Key - Gen: Tương tự với hệ mật LWE truyền thống thì secret key $S$ cũng là một vector trên $\mathbb{Z}_q^n$ . 
+- Mã hóa:
+Ciphertext sẽ là một cặp giá trị $(A,b)$ với đầu vào là $m$. 
+Trong đó $A$ là một phần tử ngẫu nhiên thuộc $\mathbb{Z}_q^n$. Error-term $e$ sẽ nằm trong khoảng $[-\Delta/2, \Delta/2]$ và $b = \langle A,S \rangle + \Delta \times m + e$ . 
+- Giải mã:
+Để giải mã thì ta sẽ lấy $x = b- \langle A,S \rangle \bmod q$ và tính $m = round(x/\Delta)$ . Trong Python có sẵn hàm round để làm việc này:
+
+Sau khi thực hiện phép trừ $x= b - \langle A,S\rangle$ thì ta có thể coi như $x$ xấp xỉ với $\Delta \cdot m +e$ nếu như không tính thêm modulo $q$. 
+Khi ta chia lấy phần nguyên thì ta mong muốn có được 
+$$
+x/\Delta = m+ e/\Delta 
+$$
+Với $\lvert e \rvert < \Delta/2$ thì $\lvert e/\Delta \rvert < 1/2$ cho nên ta có được $m= round(x/\Delta)$. 
+Câu hỏi tiếp theo là tại sao ta cần phải chọn tham số thỏa mãn $\Delta \cdot m +e <q/2$ 
+
+```python
+from sage.all import * 
+
+
+S =  (55542, 19411, 34770, 6739, 63198, 63821, 5900, 32164, 51223, 38979, 24459, 10936, 17256, 20215, 35814, 42905, 53656, 17000, 1834, 51682, 43780, 22391, 33012, 61667, 37447, 16404, 58991, 61772, 44888, 43199, 32039, 26885, 17206, 62186, 58387, 57048, 38393, 29306, 58001, 57199, 33472, 56572, 53429, 62593, 14134, 40522, 25106, 34325, 37646, 43688, 14259, 24197, 33427, 43977, 18322, 38877, 55093, 12466, 16869, 25413, 54773, 59532, 62694, 13948) 
+
+A =  (13759, 12750, 38163, 63722, 39130, 22935, 58866, 48803, 15933, 64995, 60517, 64302, 42432, 32000, 22058, 58123, 53993, 33790, 35783, 61333, 53431, 43016, 60795, 25781, 28091, 11212, 64592, 11385, 24690, 40658, 35307, 63583, 60365, 60359, 32568, 35417, 22078, 38207, 16331, 53636, 28734, 30436, 18170, 15939, 966, 48519, 41621, 36371, 41836, 4026, 33536, 57062, 52428, 59850, 476, 43354, 61614, 32243, 42518, 19733, 63464, 29357, 56039, 15013)
+b =  44007
+n = 64
+p = 257
+q = 0x10001
+error_bound = int(floor((q/p)/2))
+delta = int(round(q/p))
+V = VectorSpace(GF(q), n)
+S = V(S)
+A = V(A)
+x = int((b - A*S )% q)
+m = int(round(x/delta))
+print(m)
+```
+#### LWE Low Bits Message
+Source code: 
+
+```python
+# dimension
+n = 64
+# plaintext modulus
+p = 257
+# ciphertext modulus
+q = 0x10001
+# bound for error term
+error_bound = int(floor((q/p)/2))
+
+
+V = VectorSpace(GF(q), n)
+S = V.random_element()
+print("S = ", S, "\n")
+
+m = ?
+
+A = V.random_element()
+error = randint(-error_bound, error_bound)
+b = A * S + error * p + m
+
+print("A = ", A)
+print("b = ", b)
+
+```
+
+
+
+Code giải: 
+
+
+```python
+from sage.all import * 
+
+S =  (10082, 48747, 17960, 55638, 37012, 51876, 10128, 37750, 7608, 58952, 33296, 25463, 38900, 85, 65248, 42153, 44966, 31594, 40676, 56828, 30325, 38502, 65083, 7497, 2667, 54022, 24029, 32162, 57267, 12253, 6668, 5181, 14906, 51655, 61347, 4722, 22227, 23606, 63183, 52860, 1670, 31085, 42633, 47197, 7255, 16150, 9574, 62956, 26742, 57998, 49467, 31224, 60073, 12730, 41419, 41042, 53032, 16339, 32913, 16351, 34283, 47845, 3617, 35718) 
+
+A =  (53751, 21252, 55954, 16345, 60990, 2822, 56279, 37048, 36153, 52141, 2121, 56565, 48112, 43755, 12951, 22539, 29478, 28421, 62175, 10265, 36378, 21305, 42402, 26359, 939, 60690, 1161, 65097, 34505, 19777, 29652, 42868, 49148, 38296, 31916, 25606, 18700, 12655, 35631, 64674, 29018, 21021, 14865, 40196, 14036, 40278, 37209, 35585, 34344, 33030, 285, 58536, 56121, 40899, 24262, 62326, 57433, 5765, 24456, 28859, 45170, 14799, 21567, 55484)
+b =  11507
+
+n = 64
+p = 257
+q = 0x10001
+error_bound = int(floor((q/p)/2))
+V = VectorSpace(GF(q), n)
+A = V(A)
+S = V(S)
+x = b - (A*S)
+def symmetric_mod(x, m):
+    return int((x + m + m // 2) % m) - int(m // 2)
+x = symmetric_mod(x,q)
+m = int((x%p))
+print(m)
+```
+
+#### From Private to Public Key LWE
+
+
+#### Noise Free
+Source code của bài:
+```python
+from utils import listener
+from sage.all import *
+
+
+FLAG = b"crypto{????????????????????????}"
+
+# dimension
+n = 64
+# plaintext modulus
+p = 257
+# ciphertext modulus
+q = 0x10001
+
+V = VectorSpace(GF(q), n)
+S = V.random_element()
+
+def encrypt(m):
+    A = V.random_element()
+    b = A * S + m
+    return A, b
+
+
+class Challenge:
+    def __init__(self):
+        self.before_input = "Would you like to encrypt your own message, or see an encryption of a character in the flag?\n"
+
+    def challenge(self, your_input):
+        if 'option' not in your_input:
+            return {'error': 'You must specify an option'}
+
+        if your_input['option'] == 'get_flag':
+            if "index" not in your_input:
+                return {"error": "You must provide an index"}
+                self.exit = True
+
+            index = int(your_input["index"])
+            if index < 0 or index >= len(FLAG) :
+                return {"error": f"index must be between 0 and {len(FLAG) - 1}"}
+                self.exit = True
+
+            A, b = encrypt(FLAG[index])
+            return {"A": str(list(A)), "b": str(int(b))}
+
+        elif your_input['option'] == 'encrypt':
+            if "message" not in your_input:
+                return {"error": "You must provide a message"}
+                self.exit = True
+
+            message = int(your_input["message"])
+            if message < 0 or message >= p:
+                return {"error": f"message must be between 0 and {p - 1}"}
+                self.exit = True
+
+            A, b = encrypt(message)
+            return {"A": str(list(A)), "b": str(int(b))}
+
+        return {'error': 'Unknown action'}
+
+
+import builtins; builtins.Challenge = Challenge # hack to enable challenge to be run locally, see https://cryptohack.org/faq/#listener
+listener.start_server(port=13411)
+```
+
+Đối với bài này thì hàm encrypt không cộng thêm errors vào
+
+```python
+def encrypt(m):
+    A = V.random_element()
+    b = A * S + m
+    return A, b
+```
+Cho nên ta có 2 cách để lấy lại được secret key $S$ và giải flag. Cách đầu tiên là từ việc ta biết trước prefix của flag là `crypto{` cho nên ta có thể gọi `get_flag(idx)` để lấy $b=A\cdot S-flag[i]$
+Cách thứ hai là gọi server trả về ciphertext của $m=0$ là được. 
+Solve script: 
+
+```python
+from pwn import * 
+from sage.all import * 
+import json 
+context.log_level = 'debug'
+import ast 
+r = remote("socket.cryptohack.org",13411)
+n = 64
+p = 257
+q = 0x10001
+
+print(r.recvline())
+
+def send_json(io, obj):
+    io.sendline(json.dumps(obj).encode())
+def recv_json(io):
+    return json.loads(io.recvline().decode())
+V = VectorSpace(GF(q), n)
+# S = V.random_element()
+# def encrypt(m):
+#     A = V.random_element()
+#     b = A * S + m
+#     return A, b
+
+def get_flag(idx):
+    send_json(r,{"option":"get_flag","index":str(idx)})
+    data = recv_json(r)
+    return data["A"], data["b"]
+rows = []
+rhs = []
+for _ in range(n):
+    A, b = get_flag(0)
+    A, b= ast.literal_eval(A), int(b) - 99 
+    A_, b_ = vector(GF(q),A), GF(q)(b) 
+    rows.append(A_)
+    rhs.append(b_)
+F = GF(q)
+A_mat = Matrix(F, rows)      # n x n
+b_vec = vector(F, rhs) 
+S = A_mat.solve_right(b_vec)
+print(S)
+
+def decrypt(A_list,b_int,S):
+    F = GF(q)
+    A = vector(F,A_list)
+    b = F(b_int)
+    v = int(b-A*S) % q 
+    assert 0<=v<=256
+    return v 
+FLAG = b"crypto{????????????????????????}"
+m = len(FLAG)
+flag = b""
+for _ in range(m):
+    A, b = get_flag(_)
+    char = decrypt(A,b,S)
+    flag+=chr(char).encode()
+print(flag)
+# crypto{linear_algebra_is_useful}  
+```
+
+#### Bounded Noise
+```python
+import random
+import json
+
+FLAG = b"crypto{?????????????????????????????????????????}"
+
+
+def keygen(secret, q, erange=range(2)):
+    n, m = len(secret), len(secret) ** 2
+    A = Matrix(GF(q), m, n, lambda i, j: randint(0, q - 1))
+    e = vector(random.choices(erange, k=m), GF(q))
+    b = (A * secret) + e
+    return A, b, e
+
+
+flag_int = int.from_bytes(FLAG, "big")
+q = 0x10001
+secret_key = []
+while flag_int:
+    secret_key.append(flag_int % q)
+    flag_int //= q
+
+secret_key = vector(GF(q), secret_key)
+A, b, e = keygen(secret_key, q)
+
+with open("output.txt", "w") as f:
+    json.dump({"A": str(list(A)), "b": str(b)}, f)
+```
+Bài này có 2 cách giải. 
+Cách đầu tiên là dùng Arora–Ge attack và cách thứ hai là dùng LLL. Ở đây mình sẽ trình bày cách sử dụng LLL để thuận tiện làm cho các bài sau. 
+Có 2 attack chính đối với các hệ mật dựa trên LWE đó là Primal attack và Dual attack.
+
+Đối với bài này thì $b=As+e$ nhưng $e$ khá nhỏ, do nó chỉ có 2 giá trị là $0$ hoặc $1$. Secret key của ta là các hệ số của flag trong cơ số $q$. 
+
+
+
+Ta có thể xem xét các quan hệ sau
+
+$$
+\begin{equation*}
+\begin{cases}
+a_{1} s+e_{1} =b_{1} & \bmod q\\
+a_{2} s+e_{2} =b_{2} & \bmod q\\
+... & \\
+a_{m} s+e_{m} =b_{m} & \bmod q
+\end{cases}
+\end{equation*}
+$$
+Bỏ đi modulo $\displaystyle q$ bằng cách thêm vào các hệ số $\displaystyle k_{1} ,...,k_{m}$ như sau 
+
+$$
+\begin{equation*}
+\begin{cases}
+a_{1} s+k_{1} q=b_{1} -e_{1} & \\
+... & \\
+a_{m} s+k_{m} q=b_{m} -e_{m} & 
+\end{cases}
+\end{equation*}
+$$
+
+Ta xét một lattice như sau: 
+
+$$
+\begin{equation*}
+( s_{1} ,s_{2} ,...,s_{n} ,k_{1} ,k_{2} ,...,k_{m})\begin{pmatrix}
+a_{11} & a_{21} &  &  & a_{m1}\\
+a_{12} & a_{22} &  &  & a_{m2}\\
+\vdots  & \vdots  &  &  & \vdots \\
+a_{1n} & a_{2n} &  &  & a_{mn}\\
+q &  &  &  & \\
+ & 0 &  &  & \\
+ &  & 0 &  & \\
+ &  &  & \ddots  & \\
+ &  &  &  & q
+\end{pmatrix} =( b_{1} -e_{1} ,b_{2} -e_{2} ,...,b_{m} -e_{m}) =b'\approx b
+\end{equation*}
+$$
+
+Với tổ hợp tuyến tính $\displaystyle ( s_{1} ,s_{2} ,...,s_{n} ,k_{1} ,...,k_{m})$ thì ta kì vọng sẽ sinh ra một vector ngắn trong lưới đó là $\displaystyle ( b_{1} -e_{1} ,...,b_{m} -e_{m})$. Ta sẽ giải bài toán CVP với target vector là $\displaystyle b$. Sau khi có $\displaystyle b'$ thì ta sẽ giải tìm lại $\displaystyle s$ thỏa mãn $\displaystyle As=b'$. 
+
+
+Ý tưởng là như vậy còn bây giờ mình sẽ thử code xem sao. 
+```python
+from sage.all import * 
+import ast 
+import json 
+from sage.modules.free_module_integer import IntegerLattice
+
+from pwn import *
+context.log_level = "debug"
+with open("/home/duccorp/CTF/CryptoHack/lattice/lwe/output.txt") as f:
+    data = json.load(f)
+FLAG = b"crypto{?????????????????????????????????????????}"
+def flatter(M):
+    import re
+    from subprocess import check_output
+    # compile https://github.com/keeganryan/flatter and put it in $PATH
+    z = "[[" + "]\n[".join(" ".join(map(str, row)) for row in M) + "]]"
+    ret = check_output(["flatter"], input=z.encode())
+    return matrix(M.nrows(), M.ncols(), list(map(int, re.findall(b"-?\\d+", ret))))
+
+def Babai_closest_vector(B, target):
+    # Babai's Nearest Plane algorithm
+    M = B.LLL()
+    G = M.gram_schmidt()[0]
+    small = target
+    for _ in range(1):
+        for i in reversed(range(M.nrows())):
+            c = ((small * G[i]) / (G[i] * G[i])).round()
+            small -= M[i] * c
+    return target - small
+
+A = ast.literal_eval(data["A"])
+b = ast.literal_eval(data["b"])
+q = 0x10001
+print(A,"\n")
+print(b,"\n")
+F = GF(q)
+A_mat = Matrix(ZZ,A)
+b_vec = vector(ZZ, b)
+m = A_mat.nrows()
+n = A_mat.ncols()
+print(m)
+print(n)
+B = block_matrix([[A_mat,q*identity_matrix(ZZ,m)]])
+B_ = B.transpose()
+print(f"Doing LLL")
+L = IntegerLattice(B_, lll_reduce=False)
+print(f"Done LLL")
+B_reduction = L.BKZ(block_size = 20)
+print(f"Done BKZ")
+res = Babai_closest_vector(B_reduction, b_vec)
+print("Closest Vector: {}".format(res))
+```
+
+Và nó chạy rất lâu =))). Lí do là vì ma trận của ta có kích thước khá là khủng $625 \times 25$ 
+Một cách khác đó là xài Primal Attack như sau:
+```python
+from sage.all import * 
+import random 
+import json 
+import ast 
+def flatter(M):
+    import re
+    from subprocess import check_output
+    # compile https://github.com/keeganryan/flatter and put it in $PATH
+    z = "[[" + "]\n[".join(" ".join(map(str, row)) for row in M) + "]]"
+    ret = check_output(["flatter"], input=z.encode())
+    return matrix(M.nrows(), M.ncols(), list(map(int, re.findall(b"-?\\d+", ret))))
+def primal_attack(A,b,fll = False):
+    m = A.nrows()
+    n = A.ncols()
+    A_ = matrix(ZZ, A.T.rref().submatrix(0,n,n,m-n))
+    print(f"building first block ok")
+    b_zz = [int(x) for x in b]
+    I_n = identity_matrix(ZZ,n)
+    qAry = q*identity_matrix(ZZ,m-n)
+    zero_mn_n = zero_matrix(ZZ, m-n, n)    
+    zero_n_1  = zero_matrix(ZZ, n, 1)  
+    zero_mn_1 = zero_matrix(ZZ, m-n, 1)    
+    c1 = matrix(ZZ, 1, n,    b_zz[:n])    
+    c2 = matrix(ZZ, 1, m-n,  b_zz[n:]) 
+    t  = matrix(ZZ, 1, 1, [1])
+    B = block_matrix([
+    [I_n,        A_,   zero_n_1],
+    [zero_mn_n,  qAry,   zero_mn_1],
+    [c1,c2,t]
+])
+    print(f"done building block")
+    if fll == True:
+        L = flatter(B)
+    else:
+        L = B.LLL()
+    print(f"done LLL")
+    return L 
+q = 0x10001
+F = GF(q)
+with open("/home/duccorp/CTF/CryptoHack/lattice/lwe/output.txt") as f:
+    data = json.load(f)
+A = ast.literal_eval(data["A"])
+b = ast.literal_eval(data["b"])
+A_mat = Matrix(GF(q), A)
+b_vec = vector(GF(q), b)
+
+# l = primal_attack(A_mat,b_vec)
+# print(l)
+# errors = []
+# for row in l:
+#     e_cand = row[:-1]
+#     norm = e_cand.norm()
+#     if norm == 0:
+#         continue 
+#     if all(0<=abs(x)<=3 for x in e_cand):
+#         errors.append(e_cand)
+# print(errors)
+e = vector((0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1),GF(q))
+
+secret = matrix(F, A_mat).solve_right(vector(F, b_vec) - vector(F, e))
+print(secret)
+
+# (8590, 6465, 17312, 58487, 33027, 37469, 18625, 24033, 57830, 22541, 59008, 51941, 8396, 59708, 60960, 30756, 329, 52261, 21735, 5440, 61891, 54608, 37567, 26919, 99)
+from Crypto.Util.number import long_to_bytes
+flag = 0
+for rem in secret[::-1]:
+    flag *= q 
+    flag += int(rem)
+print(long_to_bytes(flag))
+```
+Như mọi người thấy thì mình đã giảm kích thước của ma trận cần rút gọn xuống còn $26 \times 26$ nên hoàn toàn có thể chạy được ổn. 
+#### Missing Modulus
+Source code của bài:
+```python
+#!/usr/bin/env python3
+
+from utils import listener
+import numpy as np
+from random import SystemRandom
+
+
+FLAG = b'crypto{??????????????????????????????????????}'
+
+random = SystemRandom()
+
+# dimension
+n = 512
+# plaintext modulus
+p = 257
+# ciphertext modulus
+q = 6007
+# message scaling factor
+delta = int(round(q/p))
+
+sigma = 3.8
+normal = lambda: round(random.gauss(0, sigma))
+uniform = lambda: random.randrange(q) - q//2
+dtype = np.int64
+
+def sample(shape, dist):
+    return np.fromfunction(np.vectorize(lambda *_: dist()), shape).astype(dtype)
+
+S = sample((n,), uniform)
+
+def encrypt(m):
+    A = sample((n,), uniform)
+    e = sample((1,), normal)[0]
+    b = A @ S + m * delta + e
+    return A.tolist(), b.tolist()
+
+
+class Challenge:
+    def __init__(self):
+        self.before_input = "Would you like to encrypt your own message, or see an encryption of a character in the flag?\n"
+
+    def challenge(self, your_input):
+        if 'option' not in your_input:
+            return {'error': 'You must specify an option'}
+
+        if your_input['option'] == 'get_flag':
+            if "index" not in your_input:
+                return {"error": "You must provide an index"}
+                self.exit = True
+
+            index = int(your_input["index"])
+            if index < 0 or index >= len(FLAG) :
+                return {"error": f"index must be between 0 and {len(FLAG) - 1}"}
+                self.exit = True
+
+            A, b = encrypt(FLAG[index])
+            return {"A": str(list(A)), "b": str(int(b))}
+
+        elif your_input['option'] == 'encrypt':
+            if "message" not in your_input:
+                return {"error": "You must provide a message"}
+                self.exit = True
+
+            message = int(your_input["message"])
+            if message < 0 or message >= p:
+                return {"error": f"message must be between 0 and {p - 1}"}
+                self.exit = True
+
+            A, b = encrypt(message)
+            return {"A": str(list(A)), "b": str(int(b))}
+
+        return {'error': 'Unknown action'}
+
+
+import builtins; builtins.Challenge = Challenge # hack to enable challenge to be run locally, see https://cryptohack.org/faq/#listener
+listener.start_server(port=13412)
+```
+
+Phân tích: 
+
+#### Noise Cheap 
+
+
+
 ## Tài liệu tham khảo
 **[1]** Abstract Algebra: Theory and Applications ,Thomas W. Judson, Stephen F. Austin, State University, August 11, 2012 
 **[2]** [Predicting Lattice Reduction, Nicolas Gama and Phong Q.Nguyen](https://www.iacr.org/archive/eurocrypt2008/49650031/49650031.pdf)
@@ -1793,3 +2514,7 @@ print(long_to_bytes(int(m)))
 **[9]** https://magicfrank00.github.io/writeups/posts/lll-to-solve-linear-equations/
 **[10]** https://ur4ndom.dev/static/files/latticetraining/practical_lattice_reductions.pdf
 **[11]** [Algorithms for the Approximate Common Divisor Problem](https://eprint.iacr.org/2016/215.pdf)
+**[12]** [The Learning with Errors Problem - Oded Regev](https://cims.nyu.edu/~regev/papers/lwesurvey.pdf)
+**[13]** [Attacks on LWE](https://www.maths.ox.ac.uk/system/files/attachments/lattice-reduction-and-attacks.pdf)
+**[14]** [A Complete Analysis of the BKZ Lattice Reduction Algorithm](https://eprint.iacr.org/2020/1237.pdf)
+**[15]** [A Brief Introduction to Techniques for Solving Lattice-based Quantum-Safe Schemes](https://docbox.etsi.org/Workshop/2017/201709_ETSI_IQC_QUANTUMSAFE/TECHNICAL_TRACK/S03_THREATS/ROYALHOLLOWAY_ALBRECHT.pdf)

@@ -594,6 +594,32 @@ Một số paper nên đọc:
 [1] https://eprint.iacr.org/2025/774.pdf
 [2]
 
+**Note: Kết hợp với yield**
+Yield là một keyword khá thú vị trong Python. 
+```python
+from sage.all import *
+B = matrix(ZZ, [
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+])
+print(B)
+def shortest_vector(B):
+    B_ = B.LLL()
+    for row in B_:
+        if not row.is_zero(): # method for ZZ-vector sage
+            yield row
+l = shortest_vector(B)
+print(l.__next__())
+```
+
+Trong python có hai kiểu object chính đó là iterator object và generator object. 
+Hiểu đơn giản thì iterator object là những object mà ta có thể dùng hàm for để duyệt qua. 
+Còn về generator thì nó hoạt động như sau: Khi hàm `shortest_vector` ở trên được gọi nó sẽ trả về một generator object chứ không thực sự gọi hay thực thi hàm. Chỉ khi ta gọi ta gọi phương thức `__next__` của Python thì hàm sẽ bắt đầu chạy cho tới khi gặp yield và giá trị của yield sẽ được trả về cho `__next__`. Chi tiết hơn về yield và generator mình sẽ trình bày trong một bài khác. 
+
+
+
+
 **Một số định lí và tính chất**
 
 Mục đích ban đầu của thuật toán LLL là phân tích các đa thức trong $\displaystyle \mathbb{Q}[ x]$, điều này thực hiện trong thời gian đa thức. Tuy nhiên trên đường đi, nó khôi phục một vector lưới có độ dài tối đa $\displaystyle \left(\frac{2}{\sqrt{3}}\right)^{m}$ lần so với vector ngắn nhất trong một số lưới $\displaystyle \mathcal{L}$, tức là nó có thể giải được $\displaystyle SVP_{\left( 2/\sqrt{3}\right)^{m}}$ trong thời gian $\displaystyle O\left( n^{6}\log_{3} B\right)$ trong đó $\displaystyle B$ là độ dài của vector cơ sở đầu vào dài nhất.
@@ -660,6 +686,9 @@ GH đưa giả ra định:
 $$ 
 \displaystyle \lambda _{1} \approx \det(\mathcal{L})^{1/n}\sqrt{\frac{n}{2\pi e}}
 $$
+## Lattice's sieving
+
+ 
 
 ## Bài toán CVP 
 
@@ -683,7 +712,7 @@ Chi tiêt mọi người có thể xem ở đây https://ecampusontario.pressboo
 
 
 
-![image](https://hackmd.io/_uploads/ByrORMcrxx.png)
+![[Pasted image 20251120164746.png]]
 
 
 Implement: 
@@ -780,6 +809,8 @@ for row in M:
         vec = target - vector(row[:-1])
         print(f"solution là {vec}")
 ```
+
+
 
 
 ## Bài toán ACD
@@ -897,9 +928,12 @@ def SDA(x, rho):
 
 ### Multivariate polynomial approach (MP)
 
-## Bài toán SVP 
 
 Bài toán SVP - Shortest Vector Problem là bài toán tìm vector ngắn nhất trong lưới. 
+## Shortest Integer solutions - SIS 
+- https://eprint.iacr.org/2023/1125.pdf
+- https://tover.xyz/p/G6k-Sage-Install/
+
 
 ## Hidden Number Problem - HNP
 Có hai phiên bản khác nhau của HNP, ở đây mình sẽ trình bày lại phiên bản quen thuộc hơn. Phiên bản còn lại mọi người có thể xem ở [đây](https://link.springer.com/chapter/10.1007/3-540-68697-5_11)
@@ -2518,3 +2552,4 @@ Phân tích:
 **[13]** [Attacks on LWE](https://www.maths.ox.ac.uk/system/files/attachments/lattice-reduction-and-attacks.pdf)
 **[14]** [A Complete Analysis of the BKZ Lattice Reduction Algorithm](https://eprint.iacr.org/2020/1237.pdf)
 **[15]** [A Brief Introduction to Techniques for Solving Lattice-based Quantum-Safe Schemes](https://docbox.etsi.org/Workshop/2017/201709_ETSI_IQC_QUANTUMSAFE/TECHNICAL_TRACK/S03_THREATS/ROYALHOLLOWAY_ALBRECHT.pdf)
+**[16]** [Lattice for beginners](https://eprint.iacr.org/2015/938.pdf)

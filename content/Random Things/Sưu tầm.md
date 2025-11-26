@@ -25,6 +25,8 @@ Một số Blog hay mà mình sưu tầm được:
 	https://soon.haari.me/
 	https://adib.au/
 	https://malb.io/
+	https://r3kapig-not1on.notion.site/2025-15dec1515fb98065acc1e4376dabd3a0
+	
 	
 	
 ## Bài viết
@@ -32,6 +34,7 @@ Một số bài viết về Security/Cryptography
 	- https://juliapoo.github.io/mathematics/2022/12/15/homomorphism-illustrated.html
 	- https://blog.cryptographyengineering.com/2018/04/21/wonk-post-chosen-ciphertext-security-in-public-key-encryption-part-1/
 	- https://yuriygeorgiev.com/2024/02/19/x86-64-cpu-architecture-the-stack/
+	- https://tover.xyz/p/G6k-Sage-Install/
 
 Về WinAPI
 - https://zetcode.com/gui/winapi/main/
@@ -43,3 +46,5 @@ Về WinAPI
 - [The Unix Programming Environment](https://scis.uohyd.ac.in/~apcs/itw/UNIXProgrammingEnvironment.pdf)
 - 
 
+
+## Tool 

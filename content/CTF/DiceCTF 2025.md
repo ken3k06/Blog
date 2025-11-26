@@ -114,8 +114,10 @@ Vì vậy mình sẽ cố gắng tìm một số $v$ mà sau khi tính $k_{0}$ v
 Ta cần $\displaystyle k_{0} =-s\times k_{1}$, hai số này được tính bởi: 
 
 $$
+\begin{array}{l}
 k_{0} =( v-x_{0})^{d}(\bmod n) \Longrightarrow k_{0}^{e} =v-x_{0}(\bmod n)\\
 k_{1} =( v-x_{1})^{d}(\bmod n) \Longrightarrow k_{1}^{e} =v-x_{1}(\bmod n)
+\end{array}
 $$
 
 Mà ta có do $\displaystyle e$ lẻ cho nên

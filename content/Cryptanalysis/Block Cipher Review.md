@@ -913,3 +913,429 @@ Phân tích source code:
 
 
 
+
+
+## Padding Oracle Attack
+
+### Pad Thai
+
+Source code của bài:
+```python
+#!/usr/bin/env python3
+
+from Crypto.Util.Padding import unpad
+from Crypto.Cipher import AES
+from os import urandom
+
+from utils import listener
+
+FLAG = 'crypto{?????????????????????????????????????????????????????}'
+
+class Challenge:
+    def __init__(self):
+        self.before_input = "Let's practice padding oracle attacks! Recover my message and I'll send you a flag.\n"
+        self.message = urandom(16).hex()
+        self.key = urandom(16)
+
+    def get_ct(self):
+        iv = urandom(16)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+        ct = cipher.encrypt(self.message.encode("ascii"))
+        return {"ct": (iv+ct).hex()}
+
+    def check_padding(self, ct):
+        ct = bytes.fromhex(ct)
+        iv, ct = ct[:16], ct[16:]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+        pt = cipher.decrypt(ct)  # does not remove padding
+        try:
+            unpad(pt, 16)
+        except ValueError:
+            good = False
+        else:
+            good = True
+        return {"result": good}
+
+    def check_message(self, message):
+        if message != self.message:
+            self.exit = True
+            return {"error": "incorrect message"}
+        return {"flag": FLAG}
+
+    #
+    # This challenge function is called on your input, which must be JSON
+    # encoded
+    #
+    def challenge(self, msg):
+        if "option" not in msg or msg["option"] not in ("encrypt", "unpad", "check"):
+            return {"error": "Option must be one of: encrypt, unpad, check"}
+
+        if msg["option"] == "encrypt": return self.get_ct()
+        elif msg["option"] == "unpad": return self.check_padding(msg["ct"])
+        elif msg["option"] == "check": return self.check_message(msg["message"])
+
+import builtins; builtins.Challenge = Challenge # hack to enable challenge to be run locally, see https://cryptohack.org/faq/#listener
+listener.start_server(port=13421)
+```
+Phân tích:
+
+Ta sẽ xem xét các hàm trong class Challenge.
+Đầu tiên là hàm `get_ct` . Một initial vector được tạo ra bởi `urandom(16)`. Cipher AES được khởi tạo cùng với iv này và key có từ trước. Sau đó nó sẽ encrypt msg bằng cipher mới này và trả về kết quả là `(iv+ct).hex()`.
+
+Hàm tiếp theo là hàm `check_padding` .
+
+Đầu vào là `ct` và sau đó gọi hàm `unpad` để kiểm tra xem padding có hợp lệ hay chưa. Đây có thể xem như là oracle để thực hiện padding oracle attacks.
+
+Hàm cuối cùng là `check_message`. Nếu như msg ta nhập vào bằng đúng với `self.message` của bài thì server sẽ trả về flag.
+
+Như vậy, server cho ta 3 option. Một là gọi `encrypt` để lấy lại `ct`. Hai là `unpad` để check padding và cuối cùng là `check` sau khi ta khôi phục lại được msg.
+
+Nhắc lại và giải thích Padding Oracle Attacks:
+
+Ở bài này server sử dụng CBC Mode:
+![[Pasted image 20251120065001.png]]
+CBC mã hóa msg bằng cách chia nó thành các block có độ dài 16 bytes. Khối đầu tiên được XOR với IV và đưa vào hàm mã hóa $\text{Enc}_{AES}(key,pt_1\oplus iv)$. Kết quả của block đầu tiên này được sử dụng để XOR với block plaintext tiếp theo và cứ thế lặp lại. Để giải mã thì ta làm ngược lại quá trình trên.
+
+Thuật toán padding được sử dụng trong CBC đó là PKCS#7. Nó hoạt động khá đơn giản bằng cách pad thêm vào sau plaintext các bytes bằng chính số bytes còn thiếu.
+
+Chẳng hạn nếu block của ta chỉ có 15 bytes thì nó sẽ pad thêm ở cuối giá trị `\\x01` .
+
+[#PKCS7](https://en.wikipedia.org/wiki/Padding_\(cryptography\)#PKCS7)
+
+Bây giờ để decrypt lại plaintext thì ta làm như sơ đồ dưới đây:
+![[Pasted image 20251120065031.png]]
+Ý tưởng của Attack như sau:
+
+Ta biết được giá trị của `C1` và `C2`. Nếu như bây giờ ta biết được giá trị của `I2` thì ta có thể giải mã và tìm lại được `P2`.
+
+Oracle của ta sẽ nhận vào ciphertext bất kì, và thông báo cho ta biết liệu padding đã hợp lệ hay chưa.
+
+Như vậy ta có thể tùy ý điều chỉnh giá trị của `C1'+C2` và gửi đến server.
+
+Bây giờ ta gọi `P2'` là plaintext giả được giải mã từ ciphertext giả mạo ở trên.
+
+- Đầu tiên ta tạo ciphertext giả mạo là `C1'` gồm có `C1'[1:15]` là các random bytes và `C1'[16]` sẽ là `00`. Nếu như kết quả giải mã `C1'+C2` trả về valid padding thì ta có thể biết được rằng `P2'[16]=01`. Nếu như không là valid padding thì ta sẽ tiếp tục lặp `C1'[16]` cho tới khi kết quả trả về là valid padding.
+
+Lí do tại sao lại như vậy? Trước hết nếu như ta làm như vậy thì ta sẽ tính lại được `I2[16]` bằng cách lấy XOR giữa `C1'[16]` và `P2'[16]` vì ta đã biết hai giá trị này.
+
+Bây giờ ta sẽ tìm hiểu tại sao lại như vậy. Giả sử plaintext ban đầu được pad có dạng `b'msg\\x02\\x02`` gồm 2 bytes ở cuối. Nhưng khi ta thay đổi bytes cuối của` C1'[16]`thì sao? Kết quả giải mã`C2` bằng AES vẫn như cũ nhưng khi XOR với một giá trị không hợp lệ khác thì msg được trả về sẽ không còn theo đúng định dạng PKCS#7 Padding.
+
+PKCS#7 có một điểm đặc biệt đó là kể cả khi msg đủ 16 bytes thì nó vẫn thực hiện pad thêm 16 bytes ở sau. Ví dụ như
+
+```python
+from Crypto.Util.Padding import pad, unpad
+from os import urandom
+msg = b'11'*16
+new_msg = pad(msg,16)
+print(new_msg)
+# b'11111111111111111111111111111111\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10\\x10'
+```
+
+Như vậy, nếu như plaintext thu được khi sử dụng một block giả mạo như `C1'` được đưa vào hàm unpad thì trừ khi bytes cuối là `01` nếu không thì nó sẽ không unpad được và sẽ báo không hợp lệ. Tương tự, nếu muốn khôi phục lại bytes tiếp theo sau đó thì ta sẽ chọn `C1'[16]` sao cho khi nó XOR với `I2[16]` đã biết ra kết quả là `02` và brute bytes còn lại của IV là `C1'[15]` cho tới khi valid padding là được. Đó là ý tưởng chính.
+```python
+from pwn import *
+import json 
+r = remote("socket.cryptohack.org", 13421)
+r.recvline()
+def oracle(ct_hex):
+    payload = json.dumps({"option":"unpad", "ct":ct_hex}).encode()
+    r.sendline(payload)
+    response = r.recvline()
+    result = json.loads(response.decode())
+    return result["result"]
+def get_ct():
+    payload = json.dumps({"option":"encrypt"}).encode()
+    r.sendline(payload)
+    response = r.recvline()
+    result = json.loads(response.decode()) 
+    return result["ct"] 
+def get_flag(msg):
+    payload = json.dumps({"option":"check", "message":msg}).encode()
+    r.sendline(payload)
+    response = r.recvline()
+    result = json.loads(response.decode())
+    return result
+
+from Crypto.Util.strxor import strxor
+def attack(iv,ciphertext):
+    dec = bytearray(16)
+    for i in range(15,-1,-1):
+        padding = 16 - i 
+        suffix = bytes([b^padding for b in dec[i+1:]])
+        for b in range(256):
+            guess = b.to_bytes(1,'big')
+            fake_iv = b'\x00' * i + guess + suffix
+            ct = (fake_iv + ciphertext).hex()
+            if oracle(ct): 
+                dec[i] = b^padding
+                print(dec)
+                break
+        else:
+            raise ValueError
+    return strxor(iv,bytes(dec))
+data = get_ct()
+ct_bytes = bytes.fromhex(data)
+iv = ct_bytes[:16]
+ct = ct_bytes[16:]
+ct1 = ct[:16]
+ct2 = ct[16:]
+p1 = attack(iv,ct1)
+p2 = attack(ct1,ct2)
+print(p1+p2)
+print(get_flag((p1 + p2).hex()))
+# {'flag': 'crypto{if_you_ask_enough_times_you_usually_get_what_you_want}'}        
+```
+### The Good, The Pad, The Ugly
+
+Source code của bài:
+```python
+from Crypto.Util.Padding import unpad
+from Crypto.Cipher import AES
+from os import urandom
+from random import SystemRandom
+
+from utils import listener
+
+FLAG = 'crypto{??????????????????????????????????????????}'
+rng = SystemRandom()
+
+
+class Challenge:
+    def __init__(self):
+        self.before_input = "That last challenge was pretty easy, but I'm positive that this one will be harder!\n"
+        self.message = urandom(16).hex()
+        self.key = urandom(16)
+        self.query_count = 0
+        self.max_queries = 12_000
+
+    def update_query_count(self):
+        self.query_count += 1
+        if self.query_count >= self.max_queries:
+            self.exit = True
+
+    def get_ct(self):
+        iv = urandom(16)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+        ct = cipher.encrypt(self.message.encode("ascii"))
+        return {"ct": (iv+ct).hex()}
+
+    def check_padding(self, ct):
+        ct = bytes.fromhex(ct)
+        iv, ct = ct[:16], ct[16:]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+        pt = cipher.decrypt(ct)  # does not remove padding
+        try:
+            unpad(pt, 16)
+        except ValueError:
+            good = False
+        else:
+            good = True
+        self.update_query_count()
+        return {"result": good | (rng.random() > 0.4)}
+
+    def check_message(self, message):
+        if message != self.message:
+            self.exit = True
+            return {"error": "incorrect message"}
+        return {"flag": FLAG}
+
+    #
+    # This challenge function is called on your input, which must be JSON
+    # encoded
+    #
+    def challenge(self, msg):
+        if "option" not in msg or msg["option"] not in ("encrypt", "unpad", "check"):
+            return {"error": "Option must be one of: encrypt, unpad, check"}
+
+        if msg["option"] == "encrypt": return self.get_ct()
+        elif msg["option"] == "unpad": return self.check_padding(msg["ct"])
+        elif msg["option"] == "check": return self.check_message(msg["message"])
+
+
+import builtins; builtins.Challenge = Challenge # hack to enable challenge to be run locally, see https://cryptohack.org/faq/#listener
+listener.start_server(port=13422)
+```
+Bài này giống hệt bài trên kia, cũng là padding oracle attacks nhưng có một vấn đề đó là nó thêm vào 2 điều kiện. Điều kiện đầu tiên là không được truy vấn quá 12000 lần. Điều kiện thứ hai là ở hàm `(rng.random() > 0.4)`, hàm này sẽ trả về True với xác suất là 60% còn False với xác suất là 40%.
+
+Toán tử `|` là toán tử OR tức là chỉ cần 1 trong 2 True thì kết quả sẽ trả về là True. Nếu padding hợp lệ thì nó trả về True, ngược lại nếu padding không hợp lệ thì vẫn có xác suất nó trả về True.
+
+Vậy thì ta nên xử lí như thế nào? Xác suất để padding không hợp lệ nhưng vẫn trả về True là 60%
+
+**Ý tưởng.**
+
+| Oracle | RNG      | Output | Prob |
+| ------ | -------- | ------ | ---- |
+| 1      | 0 (<0.4) | 1      | 40   |
+| 1      | 1 (>0.4) | 1      | 60   |
+| 0      | 1        | 1      | 60   |
+| 0      | 0        | 0      | 40   |
+
+
+Như đã thấy ở trên thì nếu padding là đúng thì mặc cho kết quả là gì Oracle vẫn sẽ trả về kết quả là đúng. Trong khi đó, nếu như padding sai thì server sẽ trả về kết quả sai với xác suất là $0.6$.
+
+Vậy ta sẽ thử nhiều lần. Giả sử ở lần thử đầu tiên ta được kết quả sai với xác suất là $0.6$. Do các phép thử là độc lập cho nên xác suất để oracle trả về kết quả sai ở lần thử tiếp theo sẽ là $(0.6)^2$. Và khi thử $n$ lần thì xác suất sai sẽ là $(0.6)^n$.
+
+Khi $n$ càng lớn thì xác suất xảy ra sai sót sẽ càng giảm và trở nên không đáng kể. Như vậy để giải bài này, với mỗi fake IV mà ta tạo ra, ta sẽ gửi tới server để kiểm tra tổng cộng $n$ lần. Nếu như tổng cộng $n$ lần liên tiếp đều True thì ta có thể kết luận với xác suất đáng kể rằng padding là hợp lệ. Ngược lại nếu như trong số $n$ lần có ít nhất một lần server phản hồi sai thì padding là sai và ta loại trường hợp này. Ta được truy vấn tối đa 12000 lần, có 256 bytes cần brute và ta cần làm 2 lần với 2 block khác nhau cho nên có kiểm tra với số phép thử là $12000 : (256*2)\approx23$ lần.
+
+Với mỗi ciphertext, ta gọi lên oracle 23 lần, nếu cả 23 lần đều True thì khả năng cao là đúng còn ngược lại là sai (tức là cả 23 lần trên thực tế đều là invalid padding nhưng oracle trả về là True, xác suất để điều này xảy ra là rất thấp)
+
+Solve script:
+
+```python
+from pwn import *
+import json 
+r = remote("socket.cryptohack.org", 13422)
+r.recvline()
+def check23(ct_hex, tries=23):
+    for _ in range(tries):
+        if not oracle(ct_hex):
+            return False
+    return True
+def oracle(ct_hex):
+    global queries
+    queries += 1
+    payload = json.dumps({"option":"unpad", "ct":ct_hex}).encode()
+    r.sendline(payload)
+    response = r.recvline()
+    result = json.loads(response.decode())
+    return result["result"]
+def get_ct():
+    payload = json.dumps({"option":"encrypt"}).encode()
+    r.sendline(payload)
+    response = r.recvline()
+    result = json.loads(response.decode()) 
+    return result["ct"] 
+def get_flag(msg):
+    payload = json.dumps({"option":"check", "message":msg}).encode()
+    r.sendline(payload)
+    response = r.recvline()
+    result = json.loads(response.decode())
+    return result
+
+from Crypto.Util.strxor import strxor
+queries = 0
+def attack(iv,ciphertext):
+    dec = bytearray(16)
+    for i in range(15,-1,-1):
+        padding = 16 - i 
+        suffix = bytes([b^padding for b in dec[i+1:]])
+        for b in range(256):
+            guess = b.to_bytes(1,'big')
+            fake_iv = b'\x00' * i + guess + suffix
+            ct = (fake_iv + ciphertext).hex()
+            if check23(ct):
+                dec[i] = b ^ padding
+                print(f"lần thử thứ {queries} , {dec}")
+                break
+        else:
+            raise ValueError
+    return strxor(iv,bytes(dec))
+data = get_ct()
+ct_bytes = bytes.fromhex(data)
+iv = ct_bytes[:16]
+ct = ct_bytes[16:]
+ct1 = ct[:16]
+ct2 = ct[16:]
+p1 = attack(iv,ct1)
+p2 = attack(ct1,ct2)
+print(p1+p2)
+flag = get_flag((p1 + p2).decode('ascii'))
+print(flag)
+# {'flag': 'crypto{even_a_faulty_oracle_leaks_all_information}'}
+```
+
+### Oracular Spectacular
+
+Source code của bài:
+
+```python
+#!/usr/bin/env python3
+
+from Crypto.Util.Padding import unpad
+from Crypto.Cipher import AES
+from os import urandom
+from random import SystemRandom
+
+from utils import listener
+
+FLAG = 'crypto{????????????????????????????????????????????????????}'
+rng = SystemRandom()
+
+
+class Challenge:
+    def __init__(self):
+        self.before_input = "That last challenge was pretty easy, but I'm positive that this one will be harder!\n"
+        self.message = urandom(16).hex()
+        self.key = urandom(16)
+        self.query_count = 0
+        self.max_queries = 12_000
+
+    def update_query_count(self):
+        self.query_count += 1
+        if self.query_count >= self.max_queries:
+            self.exit = True
+
+    def get_ct(self):
+        iv = urandom(16)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+        ct = cipher.encrypt(self.message.encode("ascii"))
+        return {"ct": (iv+ct).hex()}
+
+    def check_padding(self, ct):
+        ct = bytes.fromhex(ct)
+        iv, ct = ct[:16], ct[16:]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+        pt = cipher.decrypt(ct)  # does not remove padding
+        try:
+            unpad(pt, 16)
+        except ValueError:
+            good = False
+        else:
+            good = True
+        self.update_query_count()
+        return {"result": good ^ (rng.random() > 0.4)}
+
+    def check_message(self, message):
+        if message != self.message:
+            self.exit = True
+            return {"error": "incorrect message"}
+        return {"flag": FLAG}
+
+    #
+    # This challenge function is called on your input, which must be JSON
+    # encoded
+    #
+    def challenge(self, msg):
+        if "option" not in msg or msg["option"] not in ("encrypt", "unpad", "check"):
+            return {"error": "Option must be one of: encrypt, unpad, check"}
+
+        if msg["option"] == "encrypt": return self.get_ct()
+        elif msg["option"] == "unpad": return self.check_padding(msg["ct"])
+        elif msg["option"] == "check": return self.check_message(msg["message"])
+
+
+import builtins; builtins.Challenge = Challenge # hack to enable challenge to be run locally, see https://cryptohack.org/faq/#listener
+listener.start_server(port=13423)
+```
+Tương tự bài kia nhưng có một thay đổi nhỏ. Thay vì dùng phép OR thì giờ đây nó sẽ sử dụng phép XOR `good ^ (rng.random() > 0.4)`.
+
+Bảng chân trị của phép XOR:
+
+|A|B|A ^ B|
+|---|---|---|
+|1|0|1|
+|1|1|0|
+|0|0|0|
+|0|1|1|
+
+Bây giờ ta xét với giá trị của `good` và `rng.random()>0.4`
+
+|Oracle|RNG|Output|Prob|
+|---|---|---|---|
+|1|0|1|0.4|
+|1|1|0|0.6|
+|0|0|0|0.4|
+|0|1|1|0.6|
+
+Nhận xét: khi padding là hợp lệ thì vẫn có xác suất để server trả về lỗi thay vì chắc chắn 100% là đúng như ở trên. Do đó ta không thể sử dụng chiến thuật chỉ xét 1 trong hai trường hợp là valid hoặc invalid như bài trên nữa. Tương tự, khi padding là không hợp lệ thì vẫn có xác suất để server trả về đáp án chính xác hoặc không.
+

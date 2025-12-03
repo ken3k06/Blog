@@ -313,8 +313,129 @@ Ta đang dừng lại ở bước gửi $v$.
 Sercet key của $A$ sẽ bị leak ở bước nào? Ở 2 bước sau này thì các giá trị $s_A,s_B$ sẽ được cập nhật lại nên ta cũng cần track luôn cả phần giá trị được cộng thêm vào.
 Nếu như ta khôi phục được cả hai giá trị $m_0,m_1$ thì sao? Ta sẽ khôi phục được $s_A \bmod n$? 
 Ta cần chọn $v$ sao cho $(v-x_0)^d + (v-x_1)^d \bmod N_A$ triệt tiêu để $m_0+m_1=s_A$. Ta sẽ chọn $v=(x_0+x_1)/2 \bmod N_A$ là được. 
-Nhưng ta cần cẩn thận vì đang làm việc với modulo $n$ lẫn $N_A$
+Nhưng ta cần cẩn thận vì đang làm việc với modulo $n$ lẫn $N_A$ nên cách này sẽ không hiệu quả. Mình có thử test thì rõ ràng kết quả là không giống nhau.
+Vậy nên xử lí như thế nào?
+Mình sẽ sử dụng ý tưởng đã từng được sử dụng trong bài [[DiceCTF 2025]]
+
+Với secret key của alice là $s_A$, ta kí hiệu $s_i=2^is_A$ trong đó $s_i$ là secret ở mỗi vòng mà ta cần recover. 
+Hai ciphertext của nó sẽ có dạng $c_0=t+(v-x_0)^d \bmod N_A$ và $c_1=((t+s_i)\bmod n) + (v-x_1)^d \bmod N_A$ . Chọn $m\geq2$ và chọn $v$ sao cho $\displaystyle \frac{v-x_1}{v-x_0} = m^e \bmod N_A$  để sau khi Alice tính xong $k$ thì ta được 
+$$
+\begin{array}{l}
+c_1 -mc_0=((t+s_i) \bmod n) -mt \bmod N_A  
+\end{array}
+$$
+Đến đây sẽ có 2 trường hợp.
+Trường hợp 1 là $(t+s_i) \bmod n = (t+s_i)$ hoặc là $t+s_i-n$. Vì $t\in [0,n)$ còn $s_i \in [0,n)$ vì được lấy modulo $n$. Cho nên $t+s_i \in [0,2n-2)$ dẫn tới 1 trong 2 trường hợp ở trên. 
+Như vậy khi tách ra cũng sẽ có 2 trường hợp cho $(c_1-mc_0) \bmod N_A$ đó là $s_i \bmod n - (m-1)t + N$hoặc là $s_i \bmod n - (m-1)t-n+N$. 
+Nhưng nếu chỉ có mỗi $s_i$ thì ta không thể recover lại được secret của alice mà cần xét thêm $s_{i+1}$ nữa. Cụ thể ta lấy 
+$$
+s_{i+1} = 2s_i \bmod n
+$$
+
+... cập nhật sau 
 
 
-Ý tưởng bài này khá giống với 1 bài trong giải DiceCTF 2025
 
+
+```python
+from pwn import *
+from Crypto.Util.number import isPrime
+import json
+from tqdm import tqdm
+
+context.log_level = "info"
+r = process(["python3", "chall.py"])
+
+r.recvuntil(b"n = ")
+n = int(r.recvline().strip())
+print(n)
+
+e = 65537
+nbits = 1024
+
+p1 = 917519
+assert (p1 - 1) % e == 0
+exp_e_power = (p1 - 1) // e
+
+bob_secret = 0
+q_candidates = [0]
+mod = 2**20
+w0 = 1
+w1 = mod + 1
+
+for bit in tqdm(range(1000)):
+    r.recvuntil(b"Alice -> Bob: ")
+    line = r.recvline().strip().decode()
+    data = json.loads(line)
+
+    N_A = data["N"]
+    x = data["x"]
+
+    N_mitm = (N_A // p1) * p1
+    assert nbits - 1 <= N_mitm.bit_length() <= nbits
+
+    forged = {"N": int(N_mitm), "x": x}
+    r.sendline(json.dumps(forged).encode())
+
+    r.recvuntil(b"Bob -> Alice: ")
+    line = r.recvline().strip().decode()
+    data = json.loads(line)
+    v_from_bob = data["v"]
+
+    b_bit = 0
+    if pow(v_from_bob - x[1], exp_e_power, p1) == 1:
+        b_bit = 1
+    bob_secret |= (b_bit << bit)
+
+    c0 = pow(w0, e, N_A)
+    c1 = pow(w1, e, N_A)
+    inv = pow((c0 - c1) % N_A, -1, N_A)
+    v_tampered = (inv * (c0 * x[1] - c1 * x[0])) % N_A
+
+    data_to_alice = {"v": int(v_tampered)}
+    r.sendline(json.dumps(data_to_alice).encode())
+
+    r.recvuntil(b"Alice -> Bob: ")
+    line = r.recvline().strip().decode()
+    data = json.loads(line)
+    enc_m = data["enc_m"]
+    enc0, enc1 = enc_m[0], enc_m[1]
+
+    y = (enc1 * w0 - enc0 * w1) % N_A
+    y -= N_A
+    y %= mod
+
+    if bit == 0:
+        y0 = y
+    else:
+        new_candidates = []
+        two_bit_mod = pow(2, bit, mod)
+        for q in q_candidates:
+            for q1 in (2 * q, 2 * q + 1):
+                if (
+                    y == (two_bit_mod * y0 - q1 * n) % mod or
+                    y == (two_bit_mod * y0 - (q1 + 1) * n) % mod or
+                    y == (two_bit_mod * (y0 + n) - q1 * n) % mod or
+                    y == (two_bit_mod * (y0 + n) - (q1 + 1) * n) % mod
+                ):
+                    new_candidates.append(q1)
+        q_candidates = list(set(new_candidates))
+        log.info(f"bit {bit}: {len(q_candidates)} candidates")
+
+    r.sendline(json.dumps(data).encode())
+
+q_last = q_candidates[0]
+alice_secret = (q_last * n + 2**999 - 1) // (2**999)
+
+for delta in range(10):
+    cand = alice_secret + delta
+    if cand % mod == y0 or (cand - n) % mod == y0:
+        alice_secret = cand
+        break
+
+secret = (alice_secret * bob_secret) % n
+r.sendline(str(secret).encode())
+r.interactive()
+```
+
+![[Pasted image 20251126204359.png]]

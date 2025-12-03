@@ -196,3 +196,53 @@ sage:
 	-  Để giải phương trình $AX = Y$, tìm $X$ thì ta dùng cú pháp `A.solve_right(Y)`
 	- Để giải phương trình $XA = Y$, tìm $X$ thì ta dùng cú pháp `A.solve_left(Y)`
 
+## Đa thức
+
+### Đa thức đơn biến 
+
+Để tạo vành đa thức 1 biến với ẩn $x$ chẳng hạn thì có những cách khai báo sau: 
+```python
+sage: R = PolynomialRing(QQ, ['t'])
+sage: x = R.gen()
+sage: R.random_element()
+2*t^2 + t - 1
+sage:
+```
+Khi khai báo dòng đầu tiên thì Sage không biết rõ `t` có vai trò là gì. Như vậy sage sẽ coi `t` như một `string var` dùng để in đa thức ra màn hình. 
+```python
+sage: R
+Univariate Polynomial Ring in t over Rational Field
+sage:
+```
+Ví dụ mọi người gõ 
+```python
+f=t^3-t+2
+```
+thì sẽ gặp ngay lỗi `name 't' is not defined`
+![[Pasted image 20251201155735.png]]
+
+Có 2 cách để xử lí. Một là ta gọi 
+```python
+t = R.gen()
+```
+hoặc bất cứ kí hiệu nào mà ta muốn rồi khai báo lại đa thức `f` là được.
+
+Cách thứ hai là khai báo vành đa thức theo cách sau:
+```python
+R.<t> = PolynomialRing(QQ)
+```
+Hoặc 
+```python
+R.<t> = QQ['t']
+R.<t> = QQ[]
+```
+### Đa thức đa biến 
+Với các vành đa thức nhiều biến thì cũng có các cách khai báo sau:
+```python
+
+```
+
+
+
+
+Tham khảo: https://doc.sagemath.org/html/en/reference/polynomial_rings/index.html

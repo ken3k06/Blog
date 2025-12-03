@@ -4,20 +4,20 @@
 
 Học syntax solidity tại đây: https://solidity-by-example.org/. Để chạy thử các lệnh solidity thì mọi người có thể lên Remix IDE: https://remix.ethereum.org
 Tiếp theo mình lên trang này để lấy testnet tokens về làm bài: https://cloud.google.com/application/web3/faucet/ethereum/sepolia
-![image](https://hackmd.io/_uploads/H1YXPSOigg.png)
+![[Pasted image 20251129211302.png]]
 
 
 ## Level 0 - Hello Ethernaut
 
 Bài đầu tiên chủ yếu hướng dẫn mình cách tương tác với instance. 
 
-![image](https://hackmd.io/_uploads/SkfBOSOoeg.png)
+![[Pasted image 20251129211306.png]]
 
 Mở console của trình duyệt lên thì nó trông như thế này. Sau đó mình làm theo hướng dẫn ở từng bước của bài. 
 
 Để xem địa chỉ hiện tại của bản thân ta dùng lệnh `player`. 
 
-```
+```js
 player
 '0x658E622E3A07B3A26eE7BcC9b2c0Ab08b06c7C21'
 ```
@@ -49,7 +49,7 @@ Gõ `help()` để xem các utility functions mà Ethernaut cung cấp.
 Ta sẽ gọi các hàm public thông qua instance này và mỗi lần gọi nó sẽ trả về cho ta một promise vì tương tác với blockchain là tương tác bất đồng bộ. 
 
 
-![image](https://hackmd.io/_uploads/H1END6usxl.png)
+![[Pasted image 20251129211314.png]]
 
 Mọi người có thể xem trước một số hàm như sau. 
 
@@ -73,7 +73,7 @@ await contract.info2("hello")
 
 Như vậy khi gọi `infoNum` nó sẽ trả về số thứ tự của method `info()` tiếp theo mà ta cần gọi 
 
-![image](https://hackmd.io/_uploads/HyDOOT_jxe.png)
+![[Pasted image 20251129211321.png]]
 
 ```javascript
 await contract.info42()
@@ -88,7 +88,7 @@ await contract.authenticate("ethernaut0")
 ```
 Sau khi xác nhận xong nó sẽ hiện lên yêu cầu giao dịch.
 
-![image](https://hackmd.io/_uploads/HJ0ktTusxx.png)
+![[Pasted image 20251129211326.png]]
 
 Nhấn xác nhận và hoàn tất chall. 
 
@@ -96,13 +96,13 @@ Nhấn xác nhận và hoàn tất chall.
 
 
 
-![image](https://hackmd.io/_uploads/S1by3ruoxg.png)
+![[Pasted image 20251129211336.png]]
 
 
 ## Level 1 -  Fallback
 
 Source code:
-```solidity
+```js
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
@@ -151,9 +151,9 @@ Ta phân tích từng hàm trong `contract Fallback{}`
     address public owner;
 ```
 Hàm này map mỗi địa chỉ ví sang các số nguyên 256 bits. Ở đây cũng khai báo một biến địa chỉ của `owner` và được lưu ở state public. Solidity sẽ tự sinh ra một getter function để ai cũng có thể đọc được giá trị  
-![image](https://hackmd.io/_uploads/HJCbcJYigl.png)
+![[Pasted image 20251129211342.png]]
 Trong console nếu gõ như sau thì ta sẽ xem được địa chỉ của owner. 
-```solidity
+```js
 await contract.owner()
 
 '0x3c34A342b2aF5e885FcaA3800dB5B205fEfa3ffB'
@@ -166,7 +166,7 @@ await contract.owner()
 ```
 Ở đây ta biết được khi contract được deploy thì `owner` sẽ là người deploy và đồng thời ta gán cho `owner` một khoản contributions ban đầu là `1000 ethers`
 
-```solidity
+```js
     modifier onlyOwner() {
         require(msg.sender == owner, "caller is not the owner");
         _;
@@ -174,7 +174,7 @@ await contract.owner()
 ```
 Đây là một bộ lọc, chỉ cho phép `owner` gọi hàm.
 
-```solidity
+```js
     function contribute() public payable {
         require(msg.value < 0.001 ether);
         contributions[msg.sender] += msg.value;
@@ -187,7 +187,7 @@ Hàm này cho ta biết nhưng thông tin sau: Ta có thể gửi ETH với tố
 Sau đó số lượng này sẽ được cộng thêm vào contributions của owner thông qua `contributions[msg.sender] += msg.value;`
 
 Nếu như giá trị contributions của ta vượt quá 1000 (tức là contributions của owner) thì ta sẽ trở thành owner mới và sẽ được phép gọi hàm. 
-```solidity
+```js
     function getContribution() public view returns (uint256) {
         return contributions[msg.sender];
     }
@@ -195,7 +195,7 @@ Nếu như giá trị contributions của ta vượt quá 1000 (tức là contri
 ```
 Hàm này cho biết bản thân đã góp bao nhiêu. 
 Và cuối cùng: 
-```solidity
+```js
     function withdraw() public onlyOwner {
         payable(owner).transfer(address(this).balance);
     }
@@ -211,7 +211,7 @@ Hàm `withdraw()` cho phép ta rút toàn bộ số tiền trong ví nếu như 
 Hàm `receive()` sẽ được gọi khi contract nhận ETH nhưng không có data, đồng thời phải thỏa 2 yêu cầu đó là `msg.value>0` tức là ta phải gửi tiền vào và số tiền trước đó ít nhất phải lớn hơn 0.
 
 Chi tiết hơn thì mình đọc doc ở đây:
-![image](https://hackmd.io/_uploads/ry5rlgtsgl.png)
+![[Pasted image 20251129211353.png]]
 
 Mình hiểu nó như sau: 
 Mỗi contract sẽ có tối đa một hàm `receive`, khai báo bằng cách gọi 
@@ -221,7 +221,7 @@ receive() external payable {...}
 Hàm này không có tên, không có tham số và cũng không trả về giá trị gì. 
 Hàm này được kích hoạt khi ta call tới contract với data rỗng. 
 
-![image](https://hackmd.io/_uploads/r15y-gKjgl.png)
+![[Pasted image 20251129211400.png]]
 
 Tương tự thì ta cũng có một hàm khác gọi là fallback có cú pháp khai báo:
 ```solidity
@@ -249,6 +249,9 @@ contract.withdraw()
 ```
 ## Level 2 - Fallout
 
+
+
 # Tài liệu
 [1] https://ethereum.org/developers/docs/
 [2] https://docs.ethers.org/v6/getting-started/
+[3] https://viblo.asia/p/javascript-can-ban-ORNZqDzeK0n

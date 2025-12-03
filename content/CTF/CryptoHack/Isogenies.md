@@ -825,14 +825,16 @@ print(decrypt_flag(s_, iv, ct))
 
 ## Resources 
 
-[1] [Note của anh Giáp](https://www.notion.so/aec3e90af4d14ca1a3db8be7ffd0794a?pvs=21)
-[2] [Supersingular Isogeny Key Exchange for Beginners](https://eprint.iacr.org/2019/1321.pdf)
-[3] [Isogeny School Week 3](https://www.hyperelliptic.org/tanja/teaching/isogeny-school21/)
-[4] [Sage's Syntax for Isogenies](https://doc.sagemath.org/html/en/reference/arithmetic_curves/sage/schemes/elliptic_curves/ell_curve_isogeny.html)
-[5] [COSIC Mathematical Foundations of Post-Quantum Cryptography](https://www.esat.kuleuven.be/cosic/events/math-pqc/wp-content/uploads/sites/10/2024/08/2024-Budapest-condensed.pdf)
-[6] [Mathematics of Isogeny Based Cryptography](https://arxiv.org/pdf/1711.04062)
-[7] [Benjamin Wesolowski's Talk](https://www.youtube.com/watch?v=RlW3sm5-Z_I)
-[8] [Silverman - AEC](https://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf)
-[9] [Isogenies for Cryptography, Maria's Blog](https://www.mariascrs.com/2020/11/06/isogenies-for-crypto.html#:~:text=Definition%3A%20A%20rational%20map%20%24,O%7D_2)
-[10] https://eprint.iacr.org/2011/506.pdf
-[11] [Lorenz Panny' Thesis](https://yx7.cc/docs/phd/thesis.pdf)
+1 [Note của anh Giáp](https://www.notion.so/aec3e90af4d14ca1a3db8be7ffd0794a?pvs=21)
+2 [Supersingular Isogeny Key Exchange for Beginners](https://eprint.iacr.org/2019/1321.pdf)
+3 [Isogeny School Week 3](https://www.hyperelliptic.org/tanja/teaching/isogeny-school21/)
+4 [Sage's Syntax for Isogenies](https://doc.sagemath.org/html/en/reference/arithmetic_curves/sage/schemes/elliptic_curves/ell_curve_isogeny.html)
+5 [COSIC Mathematical Foundations of Post-Quantum Cryptography](https://www.esat.kuleuven.be/cosic/events/math-pqc/wp-content/uploads/sites/10/2024/08/2024-Budapest-condensed.pdf)
+6 [Mathematics of Isogeny Based Cryptography](https://arxiv.org/pdf/1711.04062)
+7 [Benjamin Wesolowski's Talk](https://www.youtube.com/watch?v=RlW3sm5-Z_I)
+8 [Silverman - AEC](https://www.pdmi.ras.ru/~lowdimma/BSD/Silverman-Arithmetic_of_EC.pdf)
+9 [Isogenies for Cryptography, Maria's Blog](https://www.mariascrs.com/2020/11/06/isogenies-for-crypto.html#:~:text=Definition%3A%20A%20rational%20map%20%24,O%7D_2)
+10 https://eprint.iacr.org/2011/506.pdf
+11 [Lorenz Panny' Thesis](https://yx7.cc/docs/phd/thesis.pdf)
+12 https://www.math.auckland.ac.nz/~sgal018/Yi-Fu-Lai-PhD.pdf
+

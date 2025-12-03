@@ -120,3 +120,4 @@ print(words)
 ```
 Tức là ta muốn so sánh các xâu dựa vào độ dài của chúng.  
 `reverse` để mặc định là `False`tức là dãy được sắp xếp tăng dần. Còn nếu muốn dãy giảm dần ta cần gọi `reverse = True`.
+## Type hints 

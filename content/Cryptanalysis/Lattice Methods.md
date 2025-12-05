@@ -618,8 +618,6 @@ Hiểu đơn giản thì iterator object là những object mà ta có thể dù
 Còn về generator thì nó hoạt động như sau: Khi hàm `shortest_vector` ở trên được gọi nó sẽ trả về một generator object chứ không thực sự gọi hay thực thi hàm. Chỉ khi ta gọi ta gọi phương thức `__next__` của Python thì hàm sẽ bắt đầu chạy cho tới khi gặp yield và giá trị của yield sẽ được trả về cho `__next__`. Chi tiết hơn về yield và generator mình sẽ trình bày trong một bài khác. 
 
 
-
-
 **Một số định lí và tính chất**
 
 Mục đích ban đầu của thuật toán LLL là phân tích các đa thức trong $\displaystyle \mathbb{Q}[ x]$, điều này thực hiện trong thời gian đa thức. Tuy nhiên trên đường đi, nó khôi phục một vector lưới có độ dài tối đa $\displaystyle \left(\frac{2}{\sqrt{3}}\right)^{m}$ lần so với vector ngắn nhất trong một số lưới $\displaystyle \mathcal{L}$, tức là nó có thể giải được $\displaystyle SVP_{\left( 2/\sqrt{3}\right)^{m}}$ trong thời gian $\displaystyle O\left( n^{6}\log_{3} B\right)$ trong đó $\displaystyle B$ là độ dài của vector cơ sở đầu vào dài nhất.
@@ -686,8 +684,6 @@ GH đưa giả ra định:
 $$ 
 \displaystyle \lambda _{1} \approx \det(\mathcal{L})^{1/n}\sqrt{\frac{n}{2\pi e}}
 $$
-
- 
 
 ## Bài toán CVP 
 
@@ -809,9 +805,6 @@ for row in M:
         print(f"solution là {vec}")
 ```
 
-
-
-
 ## Bài toán ACD
 Cho các tham số $\gamma,\eta,\rho$ và $p$ là một số nguyên lẻ có độ lớn là $\eta$-bit. Như vậy ta sẽ có 
 $$
@@ -834,8 +827,6 @@ Một biến thể của bài là bài PACD - partial approximate common divisor
 Ngoài ra ta còn có các decisional versions của bài nhưng trong phạm của bài viết này mình sẽ không đề cập đến (nếu có mình sẽ viết lại trong thư mục Theoretical Cryptography)
 
 Ngoài ra còn một phiên bản khác là CRT-ACD mọi người có thể xem tại [đây](https://nutmic2019.imj-prg.fr/confpapers/CRT-GCD.pdf)
-
-Tiếp theo là các cách attacks cho bài toán trên
 
 Tóm lại, bài toán ACD với tham số $(\gamma,\eta,\rho)$ là bài toán tìm lại giá trị bí mật $p$ từ một tập mẫu thử có dạng $x_i = pq_i+r_i$ trong đó 
 - $p$ có độ lớn $\eta$ bits, 
@@ -922,11 +913,6 @@ def SDA(x, rho):
 ```
 
 (Nếu k có flatter thì mọi người có thể dùng `LLL` của sage =)) mà flatter lâu lâu cx hay lỏ,mn nên thử cả hai và nên cập nhật phiên bản mới của flatter trước khi chạy)
-
-
-
-
-Bài toán SVP - Shortest Vector Problem là bài toán tìm vector ngắn nhất trong lưới. 
 
 
 ## Hidden Number Problem - HNP
@@ -2456,8 +2442,6 @@ for rem in secret[::-1]:
     flag += int(rem)
 print(long_to_bytes(flag))
 ```
-Như mọi người thấy thì mình đã giảm kích thước của ma trận cần rút gọn xuống còn $26 \times 26$ nên hoàn toàn có thể chạy được ổn. 
-
 
 
 Do bài đã quá dài rồi nên mình xin dừng ở đây. Những attacks còn lại mình sẽ viết trong bài tiếp theo. 

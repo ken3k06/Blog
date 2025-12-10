@@ -687,12 +687,9 @@ Với 2 unknown variables là $x_0,b$.
 - https://eprint.iacr.org/2023/1125.pdf
 - https://tover.xyz/p/G6k-Sage-Install/
 
-
-
-## Lattice's sieving
+### Lattice's sieving
 - https://eprint.iacr.org/2025/304.pdf
 - 
-## Knapsack problem 
 
 ## Hermite Normal Form 
 

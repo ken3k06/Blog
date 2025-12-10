@@ -343,7 +343,7 @@ A.speak()
 ```
 
 
-Tại sao trong Python lại đẻ ra thêm hàm `super()`, trong khi đó có thể khai báo các thuộc tính chung của các đối tượng 1 lần duy nhất trong lớp Animal rồi kể từ đó ta chỉ cần define các class method các nhau cho từng đối tượng là được. Chẳng hạn như đoạn code trên thì mọi người có thể bỏ luôn dòng `__init__(self,name,legs)` của class Dog thì nó vẫn chạy bình thường. 
+Tại sao trong Python lại đẻ ra thêm hàm `super()`, trong khi đó có thể khai báo các thuộc tính chung của các đối tượng 1 lần duy nhất trong lớp Animal rồi kể từ đó ta chỉ cần define các class method khác nhau cho từng đối tượng là được. Chẳng hạn như đoạn code trên thì mọi người có thể bỏ luôn dòng `__init__(self,name,legs)` của class Dog thì nó vẫn chạy bình thường. 
 Vậy việc sinh ra `super()` có ý nghĩa gì? 
 
 `super()` function được phát huy tác dụng khi chúng ta triển khai inheritance. Nó được sử dụng trong child class để tham chiếu đến attributes của parent class mà không cần đặt tên rõ ràng cho các methods, variables. 
@@ -417,7 +417,8 @@ print(AK47.mro())
 
 ### Tính đa hình trong Python
 Trong lập trình, polymorphism hay còn gọi là đa hình, đề cập đến việc cùng 1 object thể hiện các hành vi khác nhau. 
-Ví dụ trong class Geometry ta có thể có các object  Circle hoặc Square, với properties của chúng là khác nhau. 
+Ví dụ trong class Geometry ta có thể có các object  Circle hoặc Square, với properties của chúng là khác nhau và ngoài ra cách tính diện tích của 2 hình này cũng khác nhau. 
+
 Bây giờ, ta muốn thiết kế một method để tính diện tích các hình, nếu ta khai báo `get_area_<name>` tương ứng với từng hình thì sẽ khó để nhớ vì mỗi hình là một tên khác nhau. Cách giải quyết đó là define một methods `get_area` trong Parent class mà không implement gì trong đó. Mỗi child class sẽ kế thừa methods ấy và tự implement tương ứng. 
 Ví dụ:
 ```python
@@ -509,7 +510,58 @@ A.display(3,4)
 
 ### Tính trừu tượng
 
-Ở phần này ta sẽ nói về tính trừu tượng cũng như một số thứ về ABC, abstract method trong Python
+Ở phần này ta sẽ nói về tính trừu tượng cũng như một số thứ về ABC, abstract method trong Python. 
+
+Đầu tiên là khái niệm về tính trừu tượng. Tính trừu tượng là một trong những nguyên lí cơ bản của lập trình hướng đối tượng. Nó được sử dụng để ẩn đi các chi tiết triển khai phức tạp và chỉ hiển thị những gì cần thiết cho người dùng. Tính trừu tượng giúp giảm độ phức tạp của hệ thống, tăng tính bảo trì và tái sử dụng mã nguồn.
+
+Ví dụ: Khi chúng ta đi rút tiền ở cây ATM, việc của ta là đưa thẻ vào và nhập mật khẩu, phần còn lại máy ATM hoạt động như thế nào, xác thực ra làm sao ta hoàn toàn không quan tâm miễn là số tiền ta rút ra nhỏ hơn số dư trong tài khoản là được. 
+
+Tiếp theo là khái niệm về interface. Interface được sử dụng để định nghĩa các hành vi của một nhóm đối tượng đó. Ví dụ một con chó thì có behaviors là ngủ, sau này khi ta tạo ra một con chó thì dù nó có là loại chó nào đi chăng nữa cũng sẽ có hành vi là ngủ. 
+Một interface sẽ khai báo ra các methods của nó, các methods này không có nội dung cụ thể , nên được gọi là abstract method. Class mà implements interface này phải có tất cả các methods được khai báo trong interface và phải định nghĩa nội dung của methods. Như vậy interface về mặt bản chất là một tiêu chuẩn mà các class implement nó phải tuân thủ. Các class con kế thừa class cha với abstract method thì nó bắt buộc phải override tất cả các abstract method của class cha. 
+
+
+Trong Python thì không có interface, nên để triển khai tính trừu tượng ta sẽ sử dụng module `abc`. 
+
+**Cú pháp**
+Để định nghĩa một lớp trừu tượng trong Python, ta cần kế thừa từ `ABC` (Abstract Base Class) và sử dụng decorator `@abstractmethod` để đánh dấu các phương thức trừu tượng.
+```python
+class MyAbstractClass(ABC):
+    @abstractmethod
+    def my_abstract_method(self):
+        pass 
+```
+Ngoài ra, trong một lớp trừu tượng, ta có thể có cả các phương thức trừu tượng và không trừu tượng. Các phương thức không trừu tượng có thể có triển khai cụ thể và có thể được sử dụng bởi các lớp con.
+
+```python
+from abc import ABC, abstractmethod
+
+class Animal(ABC):
+    @abstractmethod
+    def sound(self):
+        pass
+
+    def sleep(self):
+        print("This animal is sleeping.")
+
+class Dog(Animal):
+    def sound(self):
+        return "Woof"
+
+class Cat(Animal):
+    def sound(self):
+        return "Meow"
+dog = Dog()
+cat = Cat()
+
+
+print(dog.sound())  
+print(cat.sound())  
+dog.sleep()         
+cat.sleep()         
+```
+
+
+Vậy là coi như ta đã đi qua đầy đủ các khái niệm cơ bản về OOP trong Python. 
 
 ## Bonus: Python built-in functions
 

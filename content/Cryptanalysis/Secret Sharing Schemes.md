@@ -1,7 +1,7 @@
 
 **TL;DR:** Một bài viết hơi dài của mình, tổng hợp lại một số thứ về đa thức và các Secret Sharing Schemes dựa trên bài toán nội suy đa thức (Shamir, FROST)
 
-## Các vấn đề trên đa thức
+## Định nghĩa 
 
 Ta sẽ xem một đa thức $a \in R[x]$ với $R$ là một trường (field) dưới dạng một danh sách hữu hạn các hệ số $(a_0,a_1,...,a_n)$. 
 $$

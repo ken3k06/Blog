@@ -414,6 +414,14 @@ B.display()
 print(AK47.mro())
 ```
 
+Ngoài ra khi thiết lập quan hệ kế thừa, ta vẫn phải quan tâm đến tính đóng gói và che dấu thông tin. Điều này ảnh hưởng đến phạm vi truy xuất của các thành phần của lớp. Hai vấn đề được đặt ra là: 
+- Truy xuất theo chiều dọc
+- Truy xuất theo chiều ngang 
+Truy xuất theo chiều dọc là truy xuất từ cha -> con. Tức là từ lớp con có thể truy xuất được các phương thức, thuộc tính của lớp cha. Còn truy xuất theo chiều ngang là truy xuất ngang hàng giữa các object với nhau. 
+Các thành phần protected và public của lớp khi đã kế thừa xuống lớp con thì các object bên ngoài có quyền truy xuất thông qua đối tượng thuộc lớp con hay không đều do lớp con hoàn toàn quyết định. 
+Trong Python thì quy định về việc truy cập được hay không khá là mong manh, thậm chí trong Python còn không có Friend class như trong C++ vì tất cả các class trong Python được mặc định là Public (về điểm này thì nó giống với Struct trong C++).
+
+
 
 ### Tính đa hình trong Python
 Trong lập trình, polymorphism hay còn gọi là đa hình, đề cập đến việc cùng 1 object thể hiện các hành vi khác nhau. 
@@ -562,6 +570,8 @@ cat.sleep()
 
 
 Tới đây thì coi như ta nắm được các khái niệm cơ bản về OOP trong Python. 
+
+
 
 ## Bonus: Python built-in functions
 

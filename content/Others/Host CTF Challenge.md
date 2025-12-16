@@ -127,6 +127,18 @@ Ví dụ sau khi đoạn code trên thì sau đó mình có thể connect tới 
 ### Docker 
 Mình có notes một số thứ về docker và cách setup tại [[Some notes on Docker]]
 Ngoài ra mọi người có thể xem thêm trên Doc của Docker để biết thêm cách sử dụng. 
+Một ví dụ: 
+
+```dockerfile
+FROM python:3.12-alpine
+WORKDIR /usr/local/app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache socat
+COPY . .
+EXPOSE 1337
+CMD socat -T 5 TCP-LISTEN:1337,reuseaddr,fork EXEC:"python3 chall.py",stderr
+```
 
 
 Các dịch vụ để tạo tunnel:  

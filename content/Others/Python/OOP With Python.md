@@ -247,6 +247,40 @@ MyClass.change_name("HCMUS")
 print(a.my_school)
 ```
 
+Ví dụ: Ta muốn quản lý số lượng objects mà ta đã tạo ra: 
+```python 
+class Person:
+    total_people = 0
+    def __init__(self, age, name):
+        self.age = age
+        self.name = name
+        Person.total_people += 1 # mỗi lần gọi khởi tạo 1 object , A = Person() thì tăng total_people lên 1
+    @classmethod
+    def get_number(cls):
+        return cls.total_people
+
+s1 = Person(10, "A")
+s2 = Person(20, "B")
+print(Person.get_number())
+```
+
+Hoặc ta có thể dùng class method để tạo các object theo mẫu cho trước, chẳng hạn: 
+```python
+class Gun:
+    def __init__(self, name, dmg):
+        self.name = name
+        self.dmg = dmg
+    @classmethod
+    def create_ak(cls):
+        return cls("AK", 50)
+    @classmethod
+    def create_m4(cls):
+        return cls("M4", 40)
+
+A = Gun.create_ak()
+B = Gun.create_m4()
+```
+
 
 ### Static methods 
 Static methods là method được dùng chỉ giới hạn ở phạm vi class. Chúng không tương tác với class variables hay instance variables. Chúng được sử dụng như các utility functions bên trong class. Chẳng hạn ta muốn tạo một class AES thì ta có thể thêm method `xor` để thực hiện các phép biến đổi trong scheme, v.v...
@@ -571,98 +605,8 @@ cat.sleep()
 
 Tới đây thì coi như ta nắm được các khái niệm cơ bản về OOP trong Python. 
 
+## Đa kế thừa
 
-
-## Bonus: Python built-in functions
-
-Trình thông dịch của Python có cung cấp sẵn cho ta một số hàm và kiểu dữ liệu đi kèm với hàm đó và có thể được sử dụng trực tiếp ở bất kì đâu trong chương trình mà không cần import thêm thư viện. 
-Ở đây mình sẽ nhắc lại một số hàm và chức năng của chúng nhằm mục đích tra cứu
-### abs(x)
-
-Trả về giá trị tuyệt đối của đối số `x` được truyền vào. Nếu như đối số `x` là số phức thì sẽ trả về độ lớn của nó
-### all(iterable)
-
-Trả về `true` nếu như mọi phần tử trong iterable là true hoặc iterable là rỗng
-
-```python
->>> all([])
-True
->>> all([1,2,3])
-True
->>> all(i > 0 for i in [1,2,3])
-True
->>>
-```
-
-### any(iterable)
-
-Trả về `true` nếu như có ít nhất một phần tử trong iterable là `true`. Ngược lại trả về `false` nếu toàn bộ phần tử trong iterable là `false` hoặc iterable là rỗng
-
-```python
->>> any([1,2,3])
-True
->>> any([0,0,0,5])
-True
->>>
-```
-
-Ngoài ra, khi ép các giá trị sau đây sang kiểu Bool trong Python thì giá trị của chúng sẽ là False:
-```python
->>> bool(False)
-False
->>> bool(None)
-False
->>> bool([])
-False
->>> bool({})
-False
->>> bool(0)
-False
->>> bool(0.0)
-False
->>> bool(())
-False
->>> bool(set())
-False
->>> bool([1])
-True
->>>
-```
-### bin(x)
-
-Chuyển một số nguyên thành binary str với prefix là `0b`.
-```python
->>> bin(14)
-'0b1110'
->>>
-```
-
-Đối số `x` truyền vào phải là int object của Python, hoặc nếu không thì đối tượng phải có phương thức `__index__`  đóng vai trò trả về giá trị nguyên. 
-Nếu không muốn có prefix `0b` đằng trước thì ta dùng cú pháp `format(14, 'b')`
-
-```python
->>> format(14,'b')
-'1110'
->>> format(14,'#b')
-'0b1110'
->>>
-```
-
-### getattr(object, name , default)
-
-Trả về giá trị của một thuộc tính của đối tượng bằng tên của thuộc tính đó. Chẳng hạn 
-
-```python
-class MyClass:
-    def __init__(self ):
-        self.var = 10
-        self._protected_var = 11
-        self.__private_var = 12
-
-obj = MyClass()
-print(getattr(obj,"var"))
-# 10 
-```
 
 
 
@@ -779,6 +723,9 @@ Câu hỏi đầu tiên:
 ```
 1. Áp dụng kế thừa, đa hình xây dựng chương trình với các lớp phù hợp. Cho phép ban quản lý chung cư khu vực nhập vào số lượng chung cư Vinhomes và Bcons.
 ```
+
+
+
 
 
 ## Tài liệu tham khảo

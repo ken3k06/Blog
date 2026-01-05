@@ -149,7 +149,7 @@ E':y^2=x^3+2x
 $$
 
 We can calculate the $j$ - invariant by `sagemath`
-```sage
+```python
 sage: F = GF(5)
 sage: E = EllipticCurve(F,[1,0])
 sage: print(E)
@@ -293,11 +293,12 @@ Another method to call is `E.multiplication_by_m(k)`.
 https://cryptohack.org/challenges/isogenies/
 ### Image Point Arithmetic
 
-![image](https://hackmd.io/_uploads/HyefZf5tgg.png)
+![[Pasted image 20251228093817.png]]
+
 
 For this challenge we can applied the property $\phi(P)+\phi(Q) = \phi(P+Q)$ since the isomorphism preserves the group structure
 
-```sage
+```python
 from sage.all import *
 p=63079
 Px = 48622
@@ -328,7 +329,7 @@ $$
 \displaystyle j(\mathcal{E}_{( A,B)}) =\frac{256\left( A^{2} -3\right)^{3}}{A^{2} -4}
 $$
 
-```sage
+```python
 from sage.all import *
 p = 1912812599
 E = EllipticCurve(GF(p),[312589632,654443578])
@@ -352,7 +353,7 @@ This guarantees that the chosen torsion point $(r,0)$ in Weierstrass form become
 ### DLOG on the Surface
 
 Source code:
-```sage
+```python
 import os
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -396,7 +397,7 @@ print(f"{ct = }")
 ```
 In this challenge, we are given four points $P,Q,R,S$ of elliptic curve $E$. The curve is described as follow:
 
-```sage
+```python
 p = 2**127 - 1
 F.<i> = GF(p^2, modulus=[1,0,1])
 E = EllipticCurve(F, [1,0])
@@ -417,7 +418,7 @@ Because we are working on supersingular elliptic curves over $\displaystyle \mat
 
 To solve this challenge I will use the Weil's pairing. For more details, one should read the section 1.7 and 1.9 from this notes https://yx7.cc/docs/misc/isog_bristol_notes.pdf
 
-![image](https://hackmd.io/_uploads/Hk2BfMhKeg.png)
+![[Pasted image 20251228093855.png]]
 
 
 The order of our curve is $(p+1)^2$ and this is also the order of $P,Q,R,S$. 
@@ -431,7 +432,7 @@ Since the order is $2^{127}$, solving DLP should be easy. See also the MOV attac
 We will do the same for $b,c,d$. Note that $e(P,Q)e(Q,P)=1$.
 Solve script:
 
-```sage
+```python
 from sage.all import *
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -462,11 +463,11 @@ print(AES.new(key, AES.MODE_CBC, iv).decrypt(ct).strip())
 You can check whether this curve is supersingular or not by using the function: `E.trace_of_frobenius() % p == 0`
 
 Note: 
-![{CBC3044A-D8D9-43D8-BD30-84A82DD0D033}](https://hackmd.io/_uploads/S1h6Yfxigg.png)
+![[Pasted image 20251228093916.png]]
 
 Currently im using SageMath version 10.6 so this function should be working. Lets try it. 
 
-```sage
+```python
 p = 2**127 - 1
 F = GF(p**2, name='i', modulus=[1,0,1])
 i = F.gen()
@@ -487,7 +488,7 @@ print(a_ % n ,b_ % n ,'\n')
 ```
 One should also including two generators `[P,Q]`. Without it the result will be different. 
 [Docs](https://doc.sagemath.org/html/en/reference/groups/sage/groups/additive_abelian/additive_abelian_wrapper.html#sage.groups.additive_abelian.additive_abelian_wrapper.AdditiveAbelianGroupWrapper.discrete_log)
-```sage
+```python
 sage: x = polygen(ZZ, 'x')
 sage: F.<t> = GF(1009**2, modulus=x**2+11); E = EllipticCurve(j=F(940))
 sage: P, Q = E(900*t + 228, 974*t + 185), E(1007*t + 214, 865*t + 802)
@@ -525,14 +526,14 @@ If E has the properties given above, then we say that $E$ is supersingular or th
 
 Some deeper properties are unnecessary to mention here, however it is important to note that supersingular curves are all define over $\mathbb{F}_{p^2}$
 ### SIDH Scheme
-![image](https://hackmd.io/_uploads/Byn7cqnFge.png)
+![[Pasted image 20251228093934.png]]
 
 
 At first, I was reading from this paper: https://eprint.iacr.org/2011/506.pdf
 
 The SIDH Scheme revolve around the following commutative diagram 
 
-![image](https://hackmd.io/_uploads/HkcoccnFle.png)
+![[Pasted image 20251228093940.png]]
 
 
 
@@ -550,7 +551,7 @@ Then we choose a random supersingular curve $E$ over $\mathbb{F}_q$ such that $E
 
 We use isogenies, $\phi_A,\phi_B$ with kernels of order $l_{A}^{e_A},l_{B}^{e_B}$, respectively and the following commutative diagram for the SIDH key exchange between Alice and Bob
 
-![image](https://hackmd.io/_uploads/ByLgAqntgg.png)
+![[Pasted image 20251228093948.png]]
 
 From the diagram we can see: We first start with an supersingular curve $\displaystyle E=E_{0}$ over $\displaystyle \mathbb{F}_{p^{2}}$. Alice then choose a subgroup $\displaystyle \langle R_{A} \rangle \subseteq E\left[ l_{A}^{e_{A}}\right]$, Bob also choose a subgroup $\displaystyle \langle R_{B} \rangle =E\left[ l_{B}^{e_{B}}\right]$. The two isogenies are $\displaystyle \phi _{A} :E\rightarrow E_{A}$ and $\displaystyle \phi _{B} :E\rightarrow E_{B}$. Both paths end up at the same final curve $\displaystyle E_{AB} =E_{BA} =E/\langle R_{A} ,R_{B} \rangle$
 
@@ -564,7 +565,7 @@ The remaining question is: Why does this work?(still dont know why tf this work 
 
 Implement: You can also see this talk by [Lorenz Panny](https://www.youtube.com/watch?si=sr_vw_-XcusBqzHf&v=itwTMmiPPew&feature=youtu.be)
 
-```sage
+```python
 #public
 lA, eA, lB, eB = 2, 91, 3, 57
 p = lA^eA * lB ^ eB - 1
@@ -645,10 +646,10 @@ is a separable isogeny from $\displaystyle E$ to $\displaystyle E':y^{2} =x^{3} 
 ## Practice - 2
 ### Two Isogenies 
 
-![{F33DB631-22E8-4B91-8513-A6AEC6AA69F0}](https://hackmd.io/_uploads/BkdHYaJjeg.png)
+![[Pasted image 20251228093957.png]]
 
 Using the 2-isogeny formula above and implement it in sage like this: 
-```sage
+```python
 p = 2**18*3**13-1
 F = GF(p**2, names = 'i', modulus = [1,0,1])
 i = F.gen()
@@ -678,7 +679,7 @@ We can use any roots of the equation above to calculate the isogeny or we can us
 Note that the `j_invariant()` of $E$ and $E'$ are different because "an isogeny is not an isomorphism". The j-invariant classifies elliptic curves up to isomorphism, not up to isogeny — so two curves can be isogenous but have different j-invariants.
 
 Newest version of sagemath also give us some useful built-in to work with this:
-```sage
+```python
 p = 2**18*3**13-1
 F = GF(p**2, names = 'i', modulus = [1,0,1])
 i = F.gen()
@@ -689,9 +690,9 @@ print(phi.codomain().j_invariant())
 ```
 ### Three Isogenies
 
-![{CC697EB8-6C18-4CFF-843B-D427157393FD}](https://hackmd.io/_uploads/HkSSMfxile.png)
+![[Pasted image 20251228094003.png]]
 We can do the same as the previous challenge
-```sage
+```python
 p = 2**18*3**13-1
 F = GF(p**2, names = 'i', modulus = [1,0,1])
 i = F.gen()
@@ -702,7 +703,7 @@ print(phi.codomain().j_invariant())
 ```
 This is easy but lets calculate it using the above formula for isogenies with odd degree.
 
-```sage
+```python
 p = 2**18*3**13-1
 F = GF(p**2, names = 'i', modulus = [1,0,1])
 i = F.gen()
@@ -727,20 +728,17 @@ print(phi.rational_maps())
 
 ### Composite Isogenies
 
-![{F4BF7CDB-3DB9-4A60-9063-5C0CB3BDFD69}](https://hackmd.io/_uploads/HJx3cflsel.png)
+![[Pasted image 20251228094008.png]]
 
 For isogenies with composite degree we can calculate it in sage by `phi = E.isogeny(K,algorithm = 'factored')`. 
 The idea
 
 ### SIDH Key Exchange
-![image](https://hackmd.io/_uploads/ByTCvYUjgg.png)
+![[Pasted image 20251228094015.png]]
 
 Implement:
 ```python
 # This file was *autogenerated* from the file SIDH.sage
-from sage.all_cmdline import *   # import sage library
-
-_sage_const_110 = Integer(110); _sage_const_67 = Integer(67); _sage_const_2 = Integer(2); _sage_const_3 = Integer(3); _sage_const_1 = Integer(1); _sage_const_0 = Integer(0); _sage_const_118242575052254473701407051403380184157502700009529430046122822477 = Integer(118242575052254473701407051403380184157502700009529430046122822477); _sage_const_57638278144985143549644316704182130279784191379170896458696787312 = Integer(57638278144985143549644316704182130279784191379170896458696787312); _sage_const_80915735815367072410310689908590367651933218830435520913424043510 = Integer(80915735815367072410310689908590367651933218830435520913424043510); _sage_const_35228327576503752484578273317308597612913304063200715424014549037 = Integer(35228327576503752484578273317308597612913304063200715424014549037); _sage_const_27856673727210297071672501895829918842041821446996051944738115273 = Integer(27856673727210297071672501895829918842041821446996051944738115273); _sage_const_101349537690838191347553037323956940169953967852439843389873653018 = Integer(101349537690838191347553037323956940169953967852439843389873653018); _sage_const_45955772915614774101614751673022340983778200451506382887743008335 = Integer(45955772915614774101614751673022340983778200451506382887743008335); _sage_const_76499786039494489791183573966490259392789635716963920208794989512 = Integer(76499786039494489791183573966490259392789635716963920208794989512); _sage_const_68702305424425607424554396971378391833152415806389206440833676844 = Integer(68702305424425607424554396971378391833152415806389206440833676844); _sage_const_63162905189208938201083385603424075109355856156240516441321158383 = Integer(63162905189208938201083385603424075109355856156240516441321158383); _sage_const_14452401602439328239712793251073780692192036710425129093829067649 = Integer(14452401602439328239712793251073780692192036710425129093829067649); _sage_const_110903430163815016394569999096524527007769669322432532390635606190 = Integer(110903430163815016394569999096524527007769669322432532390635606190); _sage_const_50967992419888058158544483269655763559879646024537212566396940681 = Integer(50967992419888058158544483269655763559879646024537212566396940681); _sage_const_39165103284419354968504615023980382940222714919046676966425620242 = Integer(39165103284419354968504615023980382940222714919046676966425620242); _sage_const_113476160032430656302485251779124302915433268423829474022852380544 = Integer(113476160032430656302485251779124302915433268423829474022852380544); _sage_const_74814862075401178218909769629701747112662266906635780085603780902 = Integer(74814862075401178218909769629701747112662266906635780085603780902); _sage_const_225902606209514408534212339057054 = Integer(225902606209514408534212339057054); _sage_const_38410379124791756271891302485727 = Integer(38410379124791756271891302485727); _sage_const_128 = Integer(128); _sage_const_16 = Integer(16)
 import os
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
@@ -749,22 +747,22 @@ from Crypto.Util.Padding import pad,unpad
 FLAG = b"crypto{?????????????????????????????????????}"
 
 # Base field
-ea, eb = _sage_const_110 , _sage_const_67 
-p = _sage_const_2 **ea*_sage_const_3 **eb - _sage_const_1 
-F = GF(p**_sage_const_2 , modulus=[_sage_const_1 ,_sage_const_0 ,_sage_const_1 ], names=('i',)); (i,) = F._first_ngens(1)
+ea, eb = 110, 67
+p = 2**ea*3**eb - 1
+F.<i> = GF(p**2, modulus=[1,0,1])
 
 # Public curve
-E0 = EllipticCurve(F, [_sage_const_1 ,_sage_const_0 ])
+E0 = EllipticCurve(F, [1,0])
 
 # Torsion points
-P2 = E0(_sage_const_118242575052254473701407051403380184157502700009529430046122822477 *i + _sage_const_57638278144985143549644316704182130279784191379170896458696787312 , _sage_const_80915735815367072410310689908590367651933218830435520913424043510 *i + _sage_const_35228327576503752484578273317308597612913304063200715424014549037 )
-Q2 = E0(_sage_const_27856673727210297071672501895829918842041821446996051944738115273 *i + _sage_const_101349537690838191347553037323956940169953967852439843389873653018 , _sage_const_45955772915614774101614751673022340983778200451506382887743008335 *i + _sage_const_76499786039494489791183573966490259392789635716963920208794989512 )
-P3 = E0(_sage_const_68702305424425607424554396971378391833152415806389206440833676844 *i + _sage_const_63162905189208938201083385603424075109355856156240516441321158383 , _sage_const_14452401602439328239712793251073780692192036710425129093829067649 *i + _sage_const_110903430163815016394569999096524527007769669322432532390635606190 )
-Q3 = E0(_sage_const_50967992419888058158544483269655763559879646024537212566396940681 *i + _sage_const_39165103284419354968504615023980382940222714919046676966425620242 , _sage_const_113476160032430656302485251779124302915433268423829474022852380544 *i + _sage_const_74814862075401178218909769629701747112662266906635780085603780902 )
+P2 = E0(118242575052254473701407051403380184157502700009529430046122822477*i + 57638278144985143549644316704182130279784191379170896458696787312, 80915735815367072410310689908590367651933218830435520913424043510*i + 35228327576503752484578273317308597612913304063200715424014549037)
+Q2 = E0(27856673727210297071672501895829918842041821446996051944738115273*i + 101349537690838191347553037323956940169953967852439843389873653018, 45955772915614774101614751673022340983778200451506382887743008335*i + 76499786039494489791183573966490259392789635716963920208794989512)
+P3 = E0(68702305424425607424554396971378391833152415806389206440833676844*i + 63162905189208938201083385603424075109355856156240516441321158383, 14452401602439328239712793251073780692192036710425129093829067649*i + 110903430163815016394569999096524527007769669322432532390635606190)
+Q3 = E0(50967992419888058158544483269655763559879646024537212566396940681*i + 39165103284419354968504615023980382940222714919046676966425620242, 113476160032430656302485251779124302915433268423829474022852380544*i + 74814862075401178218909769629701747112662266906635780085603780902)
 
 # Secret Keys
-sA = _sage_const_225902606209514408534212339057054 
-sB = _sage_const_38410379124791756271891302485727 
+sA = 225902606209514408534212339057054
+sB = 38410379124791756271891302485727
 
 # TODO
 def gen_public_key():
@@ -781,9 +779,9 @@ def gen_public_key():
 # TODO
 def gen_shared_secret():
     Alice_pub, Bob_pub, EA, EB= gen_public_key()
-    ker_SA = Bob_pub[_sage_const_0 ] + sA*Bob_pub[_sage_const_1 ]
+    ker_SA = Bob_pub[0] + sA*Bob_pub[1]
     phi_SA = EB.isogeny(ker_SA,algorithm='factored')
-    ker_SB = Alice_pub[_sage_const_0 ] + sB*Alice_pub[_sage_const_1 ]
+    ker_SB = Alice_pub[0] + sB*Alice_pub[1]
     phi_SB = EA.isogeny(ker_SB, algorithm='factored')
     E_SA = phi_SA.codomain()
     E_SB = phi_SB.codomain()
@@ -793,31 +791,29 @@ def gen_shared_secret():
     return j_SA
 # TODO
 shared_secret = gen_shared_secret()
-s_ = E0.isogeny([P2 + sA * Q2, P3 + sB * Q3], algorithm="factored").codomain().j_invariant()
-print(s_)
 print(shared_secret)
 def encrypt_flag(shared_secret):
-    key = SHA256.new(data=str(shared_secret).encode()).digest()[:_sage_const_128 ]
-    iv = os.urandom(_sage_const_16 )
+    key = SHA256.new(data=str(shared_secret).encode()).digest()[:128]
+    iv = os.urandom(16)
     cipher = AES.new(key, AES.MODE_CBC, iv)
-    ct = cipher.encrypt(pad(FLAG, _sage_const_16 ))
+    ct = cipher.encrypt(pad(FLAG, 16))
 
     return iv.hex(), ct.hex()
 
 
 def decrypt_flag(shared_secret, iv_hex, ct_hex):
     # build same key
-    key = SHA256.new(data=str(shared_secret).encode()).digest()[:_sage_const_128 ]
+    key = SHA256.new(data=str(shared_secret).encode()).digest()[:128]
     iv = bytes.fromhex(iv_hex)
     ct = bytes.fromhex(ct_hex)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     m = cipher.decrypt(ct)
-    msg = unpad(m, int(_sage_const_16 ))
+    msg = unpad(m, int(16))
     return msg.decode()
 
 iv = "05a4cfbce59acb952128af83c9694390"
 ct = "755b72b2e3bef2e7a4b2ce4a370f287ad04c1359bace25f3def8be23c0c49e89b4302408ad2dcb02d4875fe58c543d91"
-print(decrypt_flag(s_, iv, ct))
+print(decrypt_flag(s_, iv, ct))%   
 ```
 ### Breaking SIDH
 
